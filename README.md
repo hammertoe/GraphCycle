@@ -49,6 +49,23 @@ pip install -r requirements.txt
 pip install google-adk
 ```
 
+### 5. Set up Google Gemini API Key
+
+1. Generate an API key for Google Gemini at [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Set the API key as an environment variable:
+
+**macOS / Linux**
+```bash
+export GOOGLE_API_KEY="your_api_key_here"
+```
+
+**Windows**
+```bash
+set GOOGLE_API_KEY=your_api_key_here
+```
+
+Alternatively, you can add it to your `.bashrc`, `.zshrc`, or create a `.env` file in the project root.
+
 ## Running the Agent
 
 To run the default agent:
