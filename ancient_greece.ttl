@@ -1,0 +1,104 @@
+@prefix greek: <http://example.org/greek#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+greek:AncientGreece rdf:type greek:Region ;
+    greek:hasClimate greek:WarmDryClimate .
+
+greek:PeopleInAncientGreece rdf:type greek:PersonGroup ;
+    greek:livedBy greek:Farming, greek:Fishing, greek:Trade ;
+    greek:wereAlso greek:Soldiers, greek:Scholars, greek:Scientists, greek:Artists ;
+    greek:livedIn greek:VillagesOrCountryside ;
+    greek:migratedTo greek:NewLands .
+
+greek:ReasonForMigration rdf:type greek:Condition ;
+    greek:included greek:ScarceFarmland, greek:LackOfWater, greek:TimberShortage .
+
+greek:GreekCities rdf:type greek:City ;
+    greek:had greek:Temples, greek:OpenAirTheatres .
+
+greek:Temples rdf:type greek:ReligiousStructure ;
+    greek:had greek:StoneColumns, greek:Statues .
+
+greek:OpenAirTheatres rdf:type greek:Theatre ;
+    greek:hosted greek:Plays .
+
+greek:Delphi rdf:type greek:AncientTown ;
+    greek:has greek:TempleOfApollo, greek:Theatre .
+
+greek:GreekHomes rdf:type greek:Building ;
+    greek:wereBuiltAround greek:CourtyardsOrGardens ;
+    greek:hadWallsMadeFrom greek:WoodAndMudBricks ;
+    greek:hadWindowsWith greek:WoodenShutters ;
+    greek:didNotHave greek:Bathrooms .
+
+greek:RichPeople rdf:type greek:PersonGroup ;
+    greek:decorated greek:WallsAndFloorsWithTilesAndPaintings ;
+    greek:had greek:PrivateBaths ;
+    greek:ate greek:Meat, greek:Hares, greek:Deer, greek:WildBoar ;
+    greek:ateAt greek:Home ;
+    greek:wore greek:DyedClothing .
+
+greek:MostPeople rdf:type greek:PersonGroup ;
+    greek:washUsing greek:BucketsOrStreams ;
+    greek:sleptOn greek:WoolFeathersOrGrassBeds ;
+    greek:wentToBedWhen greek:Dark ;
+    greek:used greek:OilLamps, greek:Candles ;
+    greek:ateWith greek:Fingers ;
+    greek:ateAt greek:PublicPlaces .
+
+greek:GreekWomen rdf:type greek:PersonGroup ;
+    greek:wore greek:Chiton, greek:Himation ;
+    greek:used greek:WhiteLead ;
+    greek:usedFor greek:PaleSkin .
+
+greek:Himation rdf:type greek:Clothing ;
+    greek:materialVariedBy greek:Season .
+
+greek:YoungMen rdf:type greek:PersonGroup ;
+    greek:wore greek:ShortTunics .
+
+greek:OlderMen rdf:type greek:PersonGroup ;
+    greek:wore greek:LongTunics .
+
+greek:EnslavedMen rdf:type greek:PersonGroup ;
+    greek:wore greek:Loincloth .
+
+greek:People rdf:type greek:PersonGroup ;
+    greek:wore greek:PlainClothes, greek:LeatherSandals, greek:HighBoots, greek:WideBrimmedHats ;
+    greek:walked greek:Barefoot ;
+    greek:wore greek:Jewellery .
+
+greek:Jewellery rdf:type greek:Adornment ;
+    greek:included greek:Bracelets, greek:Earrings, greek:Necklaces .
+
+greek:Children rdf:type greek:PersonGroup ;
+    greek:playedWith greek:PotteryFigures, greek:Dolls, greek:Rattles, greek:Hoops, greek:YoYos, greek:HobbyHorses, greek:RagBalls, greek:PigBladderBalls ;
+    greek:playedGames greek:Knucklebones, greek:NutFlickingGame ;
+    greek:kept greek:Dogs, greek:Geese, greek:Chickens .
+
+greek:Dolls rdf:type greek:Toy ;
+    greek:madeOf greek:Rags, greek:Wood, greek:Wax, greek:Clay ;
+    greek:had greek:MoveableArmsAndLegs .
+
+greek:Knucklebones rdf:type greek:Game ;
+    greek:playedWith greek:GoatAnkleBones ;
+    greek:isLike greek:Jacks, greek:Fivestones .
+
+greek:Food rdf:type greek:Meal ;
+    greek:Breakfast greek:FruitAndBreadWithWine ;
+    greek:Lunch greek:BreadAndCheese ;
+    greek:Dinner greek:BarleyPorridge, greek:Cheese, greek:Fish, greek:Vegetables, greek:Eggs, greek:Fruit ;
+    greek:Pudding greek:Nuts, greek:Figs, greek:HoneyCakes .
+
+greek:Olives rdf:type greek:Crop ;
+    greek:usedFor greek:Cooking, greek:Lighting, greek:Cosmetics ;
+    greek:produced greek:OliveOil .
+
+greek:Seafood rdf:type greek:Food ;
+    greek:included greek:Octopus .
+
+greek:MenAndWomen rdf:type greek:PersonGroup ;
+    greek:ate greek:Separately .
+
+greek:EnslavedPeople rdf:type greek:PersonGroup ;
+    greek:ateAt greek:PublicPlaces .

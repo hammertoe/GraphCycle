@@ -1,0 +1,222 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 800px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+             #loadingBar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width: 100%;
+                 height: 800px;
+                 background-color:rgba(200,200,200,0.8);
+                 -webkit-transition: all 0.5s ease;
+                 -moz-transition: all 0.5s ease;
+                 -ms-transition: all 0.5s ease;
+                 -o-transition: all 0.5s ease;
+                 transition: all 0.5s ease;
+                 opacity:1;
+             }
+
+             #bar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width:20px;
+                 height:20px;
+                 margin:auto auto auto auto;
+                 border-radius:11px;
+                 border:2px solid rgba(30,30,30,0.05);
+                 background: rgb(0, 173, 246); /* Old browsers */
+                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+             }
+
+             #border {
+                 position:absolute;
+                 top:10px;
+                 left:10px;
+                 width:500px;
+                 height:23px;
+                 margin:auto auto auto auto;
+                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+                 border-radius:10px;
+             }
+
+             #text {
+                 position:absolute;
+                 top:8px;
+                 left:530px;
+                 width:30px;
+                 height:50px;
+                 margin:auto auto auto auto;
+                 font-size:22px;
+                 color: #000000;
+             }
+
+             div.outerBorder {
+                 position:relative;
+                 top:400px;
+                 width:600px;
+                 height:44px;
+                 margin:auto auto auto auto;
+                 border:8px solid rgba(0,0,0,0.1);
+                 background: rgb(252,252,252); /* Old browsers */
+                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+                 border-radius:72px;
+                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+             }
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+            <div id="loadingBar">
+              <div class="outerBorder">
+                <div id="text">0%</div>
+                <div id="border">
+                  <div id="bar"></div>
+                </div>
+              </div>
+            </div>
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#4ecdc4", "id": "PeopleInAncientGreece", "label": "PeopleInAncientGreece", "shape": "dot", "size": 30, "title": "PeopleInAncientGreece\\nConnections: 10"}, {"color": "#96ceb4", "id": "Scientists", "label": "Scientists", "shape": "dot", "size": 10, "title": "Scientists\\nConnections: 1"}, {"color": "#45b7d1", "id": "Jewellery", "label": "Jewellery", "shape": "dot", "size": 15, "title": "Jewellery\\nConnections: 5"}, {"color": "#96ceb4", "id": "Necklaces", "label": "Necklaces", "shape": "dot", "size": 10, "title": "Necklaces\\nConnections: 1"}, {"color": "#4ecdc4", "id": "Dolls", "label": "Dolls", "shape": "dot", "size": 21, "title": "Dolls\\nConnections: 7"}, {"color": "#96ceb4", "id": "Wax", "label": "Wax", "shape": "dot", "size": 10, "title": "Wax\\nConnections: 1"}, {"color": "#96ceb4", "id": "AncientGreece", "label": "AncientGreece", "shape": "dot", "size": 10, "title": "AncientGreece\\nConnections: 2"}, {"color": "#96ceb4", "id": "Region", "label": "Region", "shape": "dot", "size": 10, "title": "Region\\nConnections: 1"}, {"color": "#45b7d1", "id": "GreekHomes", "label": "GreekHomes", "shape": "dot", "size": 15, "title": "GreekHomes\\nConnections: 5"}, {"color": "#96ceb4", "id": "CourtyardsOrGardens", "label": "CourtyardsOrGardens", "shape": "dot", "size": 10, "title": "CourtyardsOrGardens\\nConnections: 1"}, {"color": "#ff6b6b", "id": "Children", "label": "Children", "shape": "dot", "size": 30, "title": "Children\\nConnections: 14"}, {"color": "#96ceb4", "id": "PigBladderBalls", "label": "PigBladderBalls", "shape": "dot", "size": 10, "title": "PigBladderBalls\\nConnections: 1"}, {"color": "#96ceb4", "id": "Dogs", "label": "Dogs", "shape": "dot", "size": 10, "title": "Dogs\\nConnections: 1"}, {"color": "#45b7d1", "id": "Olives", "label": "Olives", "shape": "dot", "size": 15, "title": "Olives\\nConnections: 5"}, {"color": "#96ceb4", "id": "Cosmetics", "label": "Cosmetics", "shape": "dot", "size": 10, "title": "Cosmetics\\nConnections: 1"}, {"color": "#96ceb4", "id": "EnslavedMen", "label": "EnslavedMen", "shape": "dot", "size": 10, "title": "EnslavedMen\\nConnections: 2"}, {"color": "#96ceb4", "id": "Loincloth", "label": "Loincloth", "shape": "dot", "size": 10, "title": "Loincloth\\nConnections: 1"}, {"color": "#ff6b6b", "id": "Food", "label": "Food", "shape": "dot", "size": 30, "title": "Food\\nConnections: 13"}, {"color": "#96ceb4", "id": "BreadAndCheese", "label": "BreadAndCheese", "shape": "dot", "size": 10, "title": "BreadAndCheese\\nConnections: 1"}, {"color": "#4ecdc4", "id": "RichPeople", "label": "RichPeople", "shape": "dot", "size": 27, "title": "RichPeople\\nConnections: 9"}, {"color": "#96ceb4", "id": "WallsAndFloorsWithTilesAndPaintings", "label": "WallsAndFloorsWithTilesAndPaintings", "shape": "dot", "size": 10, "title": "WallsAndFloorsWithTilesAndPaintings\\nConnections: 1"}, {"color": "#96ceb4", "id": "Trade", "label": "Trade", "shape": "dot", "size": 10, "title": "Trade\\nConnections: 1"}, {"color": "#96ceb4", "id": "Figs", "label": "Figs", "shape": "dot", "size": 10, "title": "Figs\\nConnections: 1"}, {"color": "#96ceb4", "id": "Seafood", "label": "Seafood", "shape": "dot", "size": 10, "title": "Seafood\\nConnections: 2"}, {"color": "#4ecdc4", "id": "People", "label": "People", "shape": "dot", "size": 21, "title": "People\\nConnections: 7"}, {"color": "#96ceb4", "id": "PlainClothes", "label": "PlainClothes", "shape": "dot", "size": 10, "title": "PlainClothes\\nConnections: 1"}, {"color": "#96ceb4", "id": "EnslavedPeople", "label": "EnslavedPeople", "shape": "dot", "size": 10, "title": "EnslavedPeople\\nConnections: 2"}, {"color": "#ff6b6b", "id": "PersonGroup", "label": "PersonGroup", "shape": "dot", "size": 30, "title": "PersonGroup\\nConnections: 11"}, {"color": "#96ceb4", "id": "Nuts", "label": "Nuts", "shape": "dot", "size": 10, "title": "Nuts\\nConnections: 1"}, {"color": "#96ceb4", "id": "HobbyHorses", "label": "HobbyHorses", "shape": "dot", "size": 10, "title": "HobbyHorses\\nConnections: 1"}, {"color": "#45b7d1", "id": "Delphi", "label": "Delphi", "shape": "dot", "size": 10, "title": "Delphi\\nConnections: 3"}, {"color": "#96ceb4", "id": "AncientTown", "label": "AncientTown", "shape": "dot", "size": 10, "title": "AncientTown\\nConnections: 1"}, {"color": "#96ceb4", "id": "Meal", "label": "Meal", "shape": "dot", "size": 10, "title": "Meal\\nConnections: 1"}, {"color": "#96ceb4", "id": "Chickens", "label": "Chickens", "shape": "dot", "size": 10, "title": "Chickens\\nConnections: 1"}, {"color": "#45b7d1", "id": "GreekWomen", "label": "GreekWomen", "shape": "dot", "size": 15, "title": "GreekWomen\\nConnections: 5"}, {"color": "#96ceb4", "id": "VillagesOrCountryside", "label": "VillagesOrCountryside", "shape": "dot", "size": 10, "title": "VillagesOrCountryside\\nConnections: 1"}, {"color": "#96ceb4", "id": "Fishing", "label": "Fishing", "shape": "dot", "size": 10, "title": "Fishing\\nConnections: 1"}, {"color": "#96ceb4", "id": "Adornment", "label": "Adornment", "shape": "dot", "size": 10, "title": "Adornment\\nConnections: 1"}, {"color": "#96ceb4", "id": "Meat", "label": "Meat", "shape": "dot", "size": 10, "title": "Meat\\nConnections: 1"}, {"color": "#96ceb4", "id": "HighBoots", "label": "HighBoots", "shape": "dot", "size": 10, "title": "HighBoots\\nConnections: 1"}, {"color": "#96ceb4", "id": "MenAndWomen", "label": "MenAndWomen", "shape": "dot", "size": 10, "title": "MenAndWomen\\nConnections: 2"}, {"color": "#96ceb4", "id": "Fish", "label": "Fish", "shape": "dot", "size": 10, "title": "Fish\\nConnections: 1"}, {"color": "#45b7d1", "id": "GreekCities", "label": "GreekCities", "shape": "dot", "size": 10, "title": "GreekCities\\nConnections: 3"}, {"color": "#45b7d1", "id": "Temples", "label": "Temples", "shape": "dot", "size": 12, "title": "Temples\\nConnections: 4"}, {"color": "#96ceb4", "id": "Earrings", "label": "Earrings", "shape": "dot", "size": 10, "title": "Earrings\\nConnections: 1"}, {"color": "#96ceb4", "id": "Statues", "label": "Statues", "shape": "dot", "size": 10, "title": "Statues\\nConnections: 1"}, {"color": "#96ceb4", "id": "Farming", "label": "Farming", "shape": "dot", "size": 10, "title": "Farming\\nConnections: 1"}, {"color": "#96ceb4", "id": "RagBalls", "label": "RagBalls", "shape": "dot", "size": 10, "title": "RagBalls\\nConnections: 1"}, {"color": "#96ceb4", "id": "Eggs", "label": "Eggs", "shape": "dot", "size": 10, "title": "Eggs\\nConnections: 1"}, {"color": "#45b7d1", "id": "OpenAirTheatres", "label": "OpenAirTheatres", "shape": "dot", "size": 10, "title": "OpenAirTheatres\\nConnections: 3"}, {"color": "#96ceb4", "id": "Cheese", "label": "Cheese", "shape": "dot", "size": 10, "title": "Cheese\\nConnections: 1"}, {"color": "#45b7d1", "id": "ReasonForMigration", "label": "ReasonForMigration", "shape": "dot", "size": 12, "title": "ReasonForMigration\\nConnections: 4"}, {"color": "#96ceb4", "id": "TimberShortage", "label": "TimberShortage", "shape": "dot", "size": 10, "title": "TimberShortage\\nConnections: 1"}, {"color": "#96ceb4", "id": "Deer", "label": "Deer", "shape": "dot", "size": 10, "title": "Deer\\nConnections: 1"}, {"color": "#96ceb4", "id": "Toy", "label": "Toy", "shape": "dot", "size": 10, "title": "Toy\\nConnections: 1"}, {"color": "#96ceb4", "id": "Bracelets", "label": "Bracelets", "shape": "dot", "size": 10, "title": "Bracelets\\nConnections: 1"}, {"color": "#4ecdc4", "id": "MostPeople", "label": "MostPeople", "shape": "dot", "size": 24, "title": "MostPeople\\nConnections: 8"}, {"color": "#96ceb4", "id": "PublicPlaces", "label": "PublicPlaces", "shape": "dot", "size": 10, "title": "PublicPlaces\\nConnections: 2"}, {"color": "#45b7d1", "id": "Himation", "label": "Himation", "shape": "dot", "size": 10, "title": "Himation\\nConnections: 3"}, {"color": "#96ceb4", "id": "Season", "label": "Season", "shape": "dot", "size": 10, "title": "Season\\nConnections: 1"}, {"color": "#96ceb4", "id": "Home", "label": "Home", "shape": "dot", "size": 10, "title": "Home\\nConnections: 1"}, {"color": "#96ceb4", "id": "HoneyCakes", "label": "HoneyCakes", "shape": "dot", "size": 10, "title": "HoneyCakes\\nConnections: 1"}, {"color": "#96ceb4", "id": "YoungMen", "label": "YoungMen", "shape": "dot", "size": 10, "title": "YoungMen\\nConnections: 2"}, {"color": "#96ceb4", "id": "Separately", "label": "Separately", "shape": "dot", "size": 10, "title": "Separately\\nConnections: 1"}, {"color": "#96ceb4", "id": "Candles", "label": "Candles", "shape": "dot", "size": 10, "title": "Candles\\nConnections: 1"}, {"color": "#96ceb4", "id": "NewLands", "label": "NewLands", "shape": "dot", "size": 10, "title": "NewLands\\nConnections: 1"}, {"color": "#96ceb4", "id": "MoveableArmsAndLegs", "label": "MoveableArmsAndLegs", "shape": "dot", "size": 10, "title": "MoveableArmsAndLegs\\nConnections: 1"}, {"color": "#96ceb4", "id": "PrivateBaths", "label": "PrivateBaths", "shape": "dot", "size": 10, "title": "PrivateBaths\\nConnections: 1"}, {"color": "#96ceb4", "id": "Artists", "label": "Artists", "shape": "dot", "size": 10, "title": "Artists\\nConnections: 1"}, {"color": "#96ceb4", "id": "Crop", "label": "Crop", "shape": "dot", "size": 10, "title": "Crop\\nConnections: 1"}, {"color": "#45b7d1", "id": "Knucklebones", "label": "Knucklebones", "shape": "dot", "size": 15, "title": "Knucklebones\\nConnections: 5"}, {"color": "#96ceb4", "id": "Fivestones", "label": "Fivestones", "shape": "dot", "size": 10, "title": "Fivestones\\nConnections: 1"}, {"color": "#96ceb4", "id": "Lighting", "label": "Lighting", "shape": "dot", "size": 10, "title": "Lighting\\nConnections: 1"}, {"color": "#96ceb4", "id": "WoodenShutters", "label": "WoodenShutters", "shape": "dot", "size": 10, "title": "WoodenShutters\\nConnections: 1"}, {"color": "#96ceb4", "id": "YoYos", "label": "YoYos", "shape": "dot", "size": 10, "title": "YoYos\\nConnections: 1"}, {"color": "#96ceb4", "id": "WhiteLead", "label": "WhiteLead", "shape": "dot", "size": 10, "title": "WhiteLead\\nConnections: 1"}, {"color": "#96ceb4", "id": "Dark", "label": "Dark", "shape": "dot", "size": 10, "title": "Dark\\nConnections: 1"}, {"color": "#96ceb4", "id": "Clothing", "label": "Clothing", "shape": "dot", "size": 10, "title": "Clothing\\nConnections: 1"}, {"color": "#96ceb4", "id": "Barefoot", "label": "Barefoot", "shape": "dot", "size": 10, "title": "Barefoot\\nConnections: 1"}, {"color": "#96ceb4", "id": "Game", "label": "Game", "shape": "dot", "size": 10, "title": "Game\\nConnections: 1"}, {"color": "#96ceb4", "id": "TempleOfApollo", "label": "TempleOfApollo", "shape": "dot", "size": 10, "title": "TempleOfApollo\\nConnections: 1"}, {"color": "#96ceb4", "id": "Fingers", "label": "Fingers", "shape": "dot", "size": 10, "title": "Fingers\\nConnections: 1"}, {"color": "#96ceb4", "id": "Wood", "label": "Wood", "shape": "dot", "size": 10, "title": "Wood\\nConnections: 1"}, {"color": "#96ceb4", "id": "NutFlickingGame", "label": "NutFlickingGame", "shape": "dot", "size": 10, "title": "NutFlickingGame\\nConnections: 1"}, {"color": "#96ceb4", "id": "Scholars", "label": "Scholars", "shape": "dot", "size": 10, "title": "Scholars\\nConnections: 1"}, {"color": "#96ceb4", "id": "Rags", "label": "Rags", "shape": "dot", "size": 10, "title": "Rags\\nConnections: 1"}, {"color": "#96ceb4", "id": "Hoops", "label": "Hoops", "shape": "dot", "size": 10, "title": "Hoops\\nConnections: 1"}, {"color": "#96ceb4", "id": "WarmDryClimate", "label": "WarmDryClimate", "shape": "dot", "size": 10, "title": "WarmDryClimate\\nConnections: 1"}, {"color": "#96ceb4", "id": "ScarceFarmland", "label": "ScarceFarmland", "shape": "dot", "size": 10, "title": "ScarceFarmland\\nConnections: 1"}, {"color": "#96ceb4", "id": "GoatAnkleBones", "label": "GoatAnkleBones", "shape": "dot", "size": 10, "title": "GoatAnkleBones\\nConnections: 1"}, {"color": "#96ceb4", "id": "BarleyPorridge", "label": "BarleyPorridge", "shape": "dot", "size": 10, "title": "BarleyPorridge\\nConnections: 1"}, {"color": "#96ceb4", "id": "Octopus", "label": "Octopus", "shape": "dot", "size": 10, "title": "Octopus\\nConnections: 1"}, {"color": "#96ceb4", "id": "StoneColumns", "label": "StoneColumns", "shape": "dot", "size": 10, "title": "StoneColumns\\nConnections: 1"}, {"color": "#96ceb4", "id": "WoodAndMudBricks", "label": "WoodAndMudBricks", "shape": "dot", "size": 10, "title": "WoodAndMudBricks\\nConnections: 1"}, {"color": "#96ceb4", "id": "Cooking", "label": "Cooking", "shape": "dot", "size": 10, "title": "Cooking\\nConnections: 1"}, {"color": "#96ceb4", "id": "Hares", "label": "Hares", "shape": "dot", "size": 10, "title": "Hares\\nConnections: 1"}, {"color": "#96ceb4", "id": "OlderMen", "label": "OlderMen", "shape": "dot", "size": 10, "title": "OlderMen\\nConnections: 2"}, {"color": "#96ceb4", "id": "LongTunics", "label": "LongTunics", "shape": "dot", "size": 10, "title": "LongTunics\\nConnections: 1"}, {"color": "#96ceb4", "id": "Theatre", "label": "Theatre", "shape": "dot", "size": 10, "title": "Theatre\\nConnections: 2"}, {"color": "#96ceb4", "id": "OilLamps", "label": "OilLamps", "shape": "dot", "size": 10, "title": "OilLamps\\nConnections: 1"}, {"color": "#96ceb4", "id": "Chiton", "label": "Chiton", "shape": "dot", "size": 10, "title": "Chiton\\nConnections: 1"}, {"color": "#96ceb4", "id": "Clay", "label": "Clay", "shape": "dot", "size": 10, "title": "Clay\\nConnections: 1"}, {"color": "#96ceb4", "id": "OliveOil", "label": "OliveOil", "shape": "dot", "size": 10, "title": "OliveOil\\nConnections: 1"}, {"color": "#96ceb4", "id": "WideBrimmedHats", "label": "WideBrimmedHats", "shape": "dot", "size": 10, "title": "WideBrimmedHats\\nConnections: 1"}, {"color": "#96ceb4", "id": "Building", "label": "Building", "shape": "dot", "size": 10, "title": "Building\\nConnections: 1"}, {"color": "#96ceb4", "id": "FruitAndBreadWithWine", "label": "FruitAndBreadWithWine", "shape": "dot", "size": 10, "title": "FruitAndBreadWithWine\\nConnections: 1"}, {"color": "#96ceb4", "id": "Condition", "label": "Condition", "shape": "dot", "size": 10, "title": "Condition\\nConnections: 1"}, {"color": "#96ceb4", "id": "Fruit", "label": "Fruit", "shape": "dot", "size": 10, "title": "Fruit\\nConnections: 1"}, {"color": "#96ceb4", "id": "Plays", "label": "Plays", "shape": "dot", "size": 10, "title": "Plays\\nConnections: 1"}, {"color": "#96ceb4", "id": "DyedClothing", "label": "DyedClothing", "shape": "dot", "size": 10, "title": "DyedClothing\\nConnections: 1"}, {"color": "#96ceb4", "id": "BucketsOrStreams", "label": "BucketsOrStreams", "shape": "dot", "size": 10, "title": "BucketsOrStreams\\nConnections: 1"}, {"color": "#96ceb4", "id": "PaleSkin", "label": "PaleSkin", "shape": "dot", "size": 10, "title": "PaleSkin\\nConnections: 1"}, {"color": "#96ceb4", "id": "PotteryFigures", "label": "PotteryFigures", "shape": "dot", "size": 10, "title": "PotteryFigures\\nConnections: 1"}, {"color": "#96ceb4", "id": "Bathrooms", "label": "Bathrooms", "shape": "dot", "size": 10, "title": "Bathrooms\\nConnections: 1"}, {"color": "#96ceb4", "id": "LeatherSandals", "label": "LeatherSandals", "shape": "dot", "size": 10, "title": "LeatherSandals\\nConnections: 1"}, {"color": "#96ceb4", "id": "ReligiousStructure", "label": "ReligiousStructure", "shape": "dot", "size": 10, "title": "ReligiousStructure\\nConnections: 1"}, {"color": "#96ceb4", "id": "City", "label": "City", "shape": "dot", "size": 10, "title": "City\\nConnections: 1"}, {"color": "#96ceb4", "id": "WildBoar", "label": "WildBoar", "shape": "dot", "size": 10, "title": "WildBoar\\nConnections: 1"}, {"color": "#96ceb4", "id": "Jacks", "label": "Jacks", "shape": "dot", "size": 10, "title": "Jacks\\nConnections: 1"}, {"color": "#96ceb4", "id": "Vegetables", "label": "Vegetables", "shape": "dot", "size": 10, "title": "Vegetables\\nConnections: 1"}, {"color": "#96ceb4", "id": "WoolFeathersOrGrassBeds", "label": "WoolFeathersOrGrassBeds", "shape": "dot", "size": 10, "title": "WoolFeathersOrGrassBeds\\nConnections: 1"}, {"color": "#96ceb4", "id": "Soldiers", "label": "Soldiers", "shape": "dot", "size": 10, "title": "Soldiers\\nConnections: 1"}, {"color": "#96ceb4", "id": "LackOfWater", "label": "LackOfWater", "shape": "dot", "size": 10, "title": "LackOfWater\\nConnections: 1"}, {"color": "#96ceb4", "id": "Geese", "label": "Geese", "shape": "dot", "size": 10, "title": "Geese\\nConnections: 1"}, {"color": "#96ceb4", "id": "ShortTunics", "label": "ShortTunics", "shape": "dot", "size": 10, "title": "ShortTunics\\nConnections: 1"}, {"color": "#96ceb4", "id": "Rattles", "label": "Rattles", "shape": "dot", "size": 10, "title": "Rattles\\nConnections: 1"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "PeopleInAncientGreece", "label": "wereAlso", "title": "wereAlso: PeopleInAncientGreece \u2192 Scientists", "to": "Scientists"}, {"arrows": "to", "from": "PeopleInAncientGreece", "label": "livedBy", "title": "livedBy: PeopleInAncientGreece \u2192 Trade", "to": "Trade"}, {"arrows": "to", "from": "PeopleInAncientGreece", "label": "livedIn", "title": "livedIn: PeopleInAncientGreece \u2192 VillagesOrCountryside", "to": "VillagesOrCountryside"}, {"arrows": "to", "from": "PeopleInAncientGreece", "label": "livedBy", "title": "livedBy: PeopleInAncientGreece \u2192 Fishing", "to": "Fishing"}, {"arrows": "to", "from": "PeopleInAncientGreece", "label": "livedBy", "title": "livedBy: PeopleInAncientGreece \u2192 Farming", "to": "Farming"}, {"arrows": "to", "from": "PeopleInAncientGreece", "label": "migratedTo", "title": "migratedTo: PeopleInAncientGreece \u2192 NewLands", "to": "NewLands"}, {"arrows": "to", "from": "PeopleInAncientGreece", "label": "wereAlso", "title": "wereAlso: PeopleInAncientGreece \u2192 Artists", "to": "Artists"}, {"arrows": "to", "from": "PeopleInAncientGreece", "label": "wereAlso", "title": "wereAlso: PeopleInAncientGreece \u2192 Scholars", "to": "Scholars"}, {"arrows": "to", "from": "PeopleInAncientGreece", "label": "type", "title": "type: PeopleInAncientGreece \u2192 PersonGroup", "to": "PersonGroup"}, {"arrows": "to", "from": "PeopleInAncientGreece", "label": "wereAlso", "title": "wereAlso: PeopleInAncientGreece \u2192 Soldiers", "to": "Soldiers"}, {"arrows": "to", "from": "Jewellery", "label": "included", "title": "included: Jewellery \u2192 Necklaces", "to": "Necklaces"}, {"arrows": "to", "from": "Jewellery", "label": "type", "title": "type: Jewellery \u2192 Adornment", "to": "Adornment"}, {"arrows": "to", "from": "Jewellery", "label": "included", "title": "included: Jewellery \u2192 Earrings", "to": "Earrings"}, {"arrows": "to", "from": "Jewellery", "label": "included", "title": "included: Jewellery \u2192 Bracelets", "to": "Bracelets"}, {"arrows": "to", "from": "Dolls", "label": "madeOf", "title": "madeOf: Dolls \u2192 Wax", "to": "Wax"}, {"arrows": "to", "from": "Dolls", "label": "type", "title": "type: Dolls \u2192 Toy", "to": "Toy"}, {"arrows": "to", "from": "Dolls", "label": "had", "title": "had: Dolls \u2192 MoveableArmsAndLegs", "to": "MoveableArmsAndLegs"}, {"arrows": "to", "from": "Dolls", "label": "madeOf", "title": "madeOf: Dolls \u2192 Wood", "to": "Wood"}, {"arrows": "to", "from": "Dolls", "label": "madeOf", "title": "madeOf: Dolls \u2192 Rags", "to": "Rags"}, {"arrows": "to", "from": "Dolls", "label": "madeOf", "title": "madeOf: Dolls \u2192 Clay", "to": "Clay"}, {"arrows": "to", "from": "AncientGreece", "label": "type", "title": "type: AncientGreece \u2192 Region", "to": "Region"}, {"arrows": "to", "from": "AncientGreece", "label": "hasClimate", "title": "hasClimate: AncientGreece \u2192 WarmDryClimate", "to": "WarmDryClimate"}, {"arrows": "to", "from": "GreekHomes", "label": "wereBuiltAround", "title": "wereBuiltAround: GreekHomes \u2192 CourtyardsOrGardens", "to": "CourtyardsOrGardens"}, {"arrows": "to", "from": "GreekHomes", "label": "hadWindowsWith", "title": "hadWindowsWith: GreekHomes \u2192 WoodenShutters", "to": "WoodenShutters"}, {"arrows": "to", "from": "GreekHomes", "label": "hadWallsMadeFrom", "title": "hadWallsMadeFrom: GreekHomes \u2192 WoodAndMudBricks", "to": "WoodAndMudBricks"}, {"arrows": "to", "from": "GreekHomes", "label": "type", "title": "type: GreekHomes \u2192 Building", "to": "Building"}, {"arrows": "to", "from": "GreekHomes", "label": "didNotHave", "title": "didNotHave: GreekHomes \u2192 Bathrooms", "to": "Bathrooms"}, {"arrows": "to", "from": "Children", "label": "playedWith", "title": "playedWith: Children \u2192 PigBladderBalls", "to": "PigBladderBalls"}, {"arrows": "to", "from": "Children", "label": "kept", "title": "kept: Children \u2192 Dogs", "to": "Dogs"}, {"arrows": "to", "from": "Children", "label": "playedWith", "title": "playedWith: Children \u2192 HobbyHorses", "to": "HobbyHorses"}, {"arrows": "to", "from": "Children", "label": "kept", "title": "kept: Children \u2192 Chickens", "to": "Chickens"}, {"arrows": "to", "from": "Children", "label": "playedWith", "title": "playedWith: Children \u2192 RagBalls", "to": "RagBalls"}, {"arrows": "to", "from": "Children", "label": "playedWith", "title": "playedWith: Children \u2192 Dolls", "to": "Dolls"}, {"arrows": "to", "from": "Children", "label": "playedWith", "title": "playedWith: Children \u2192 YoYos", "to": "YoYos"}, {"arrows": "to", "from": "Children", "label": "playedGames", "title": "playedGames: Children \u2192 NutFlickingGame", "to": "NutFlickingGame"}, {"arrows": "to", "from": "Children", "label": "type", "title": "type: Children \u2192 PersonGroup", "to": "PersonGroup"}, {"arrows": "to", "from": "Children", "label": "playedWith", "title": "playedWith: Children \u2192 Hoops", "to": "Hoops"}, {"arrows": "to", "from": "Children", "label": "playedGames", "title": "playedGames: Children \u2192 Knucklebones", "to": "Knucklebones"}, {"arrows": "to", "from": "Children", "label": "playedWith", "title": "playedWith: Children \u2192 PotteryFigures", "to": "PotteryFigures"}, {"arrows": "to", "from": "Children", "label": "kept", "title": "kept: Children \u2192 Geese", "to": "Geese"}, {"arrows": "to", "from": "Children", "label": "playedWith", "title": "playedWith: Children \u2192 Rattles", "to": "Rattles"}, {"arrows": "to", "from": "Olives", "label": "usedFor", "title": "usedFor: Olives \u2192 Cosmetics", "to": "Cosmetics"}, {"arrows": "to", "from": "Olives", "label": "type", "title": "type: Olives \u2192 Crop", "to": "Crop"}, {"arrows": "to", "from": "Olives", "label": "usedFor", "title": "usedFor: Olives \u2192 Lighting", "to": "Lighting"}, {"arrows": "to", "from": "Olives", "label": "usedFor", "title": "usedFor: Olives \u2192 Cooking", "to": "Cooking"}, {"arrows": "to", "from": "Olives", "label": "produced", "title": "produced: Olives \u2192 OliveOil", "to": "OliveOil"}, {"arrows": "to", "from": "EnslavedMen", "label": "wore", "title": "wore: EnslavedMen \u2192 Loincloth", "to": "Loincloth"}, {"arrows": "to", "from": "EnslavedMen", "label": "type", "title": "type: EnslavedMen \u2192 PersonGroup", "to": "PersonGroup"}, {"arrows": "to", "from": "Food", "label": "Lunch", "title": "Lunch: Food \u2192 BreadAndCheese", "to": "BreadAndCheese"}, {"arrows": "to", "from": "Food", "label": "Pudding", "title": "Pudding: Food \u2192 Figs", "to": "Figs"}, {"arrows": "to", "from": "Food", "label": "Pudding", "title": "Pudding: Food \u2192 Nuts", "to": "Nuts"}, {"arrows": "to", "from": "Food", "label": "type", "title": "type: Food \u2192 Meal", "to": "Meal"}, {"arrows": "to", "from": "Food", "label": "Dinner", "title": "Dinner: Food \u2192 Fish", "to": "Fish"}, {"arrows": "to", "from": "Food", "label": "Dinner", "title": "Dinner: Food \u2192 Eggs", "to": "Eggs"}, {"arrows": "to", "from": "Food", "label": "Dinner", "title": "Dinner: Food \u2192 Cheese", "to": "Cheese"}, {"arrows": "to", "from": "Food", "label": "Pudding", "title": "Pudding: Food \u2192 HoneyCakes", "to": "HoneyCakes"}, {"arrows": "to", "from": "Food", "label": "Dinner", "title": "Dinner: Food \u2192 BarleyPorridge", "to": "BarleyPorridge"}, {"arrows": "to", "from": "Food", "label": "Breakfast", "title": "Breakfast: Food \u2192 FruitAndBreadWithWine", "to": "FruitAndBreadWithWine"}, {"arrows": "to", "from": "Food", "label": "Dinner", "title": "Dinner: Food \u2192 Fruit", "to": "Fruit"}, {"arrows": "to", "from": "Food", "label": "Dinner", "title": "Dinner: Food \u2192 Vegetables", "to": "Vegetables"}, {"arrows": "to", "from": "RichPeople", "label": "decorated", "title": "decorated: RichPeople \u2192 WallsAndFloorsWithTilesAndPaintings", "to": "WallsAndFloorsWithTilesAndPaintings"}, {"arrows": "to", "from": "RichPeople", "label": "ate", "title": "ate: RichPeople \u2192 Meat", "to": "Meat"}, {"arrows": "to", "from": "RichPeople", "label": "ate", "title": "ate: RichPeople \u2192 Deer", "to": "Deer"}, {"arrows": "to", "from": "RichPeople", "label": "ateAt", "title": "ateAt: RichPeople \u2192 Home", "to": "Home"}, {"arrows": "to", "from": "RichPeople", "label": "had", "title": "had: RichPeople \u2192 PrivateBaths", "to": "PrivateBaths"}, {"arrows": "to", "from": "RichPeople", "label": "type", "title": "type: RichPeople \u2192 PersonGroup", "to": "PersonGroup"}, {"arrows": "to", "from": "RichPeople", "label": "ate", "title": "ate: RichPeople \u2192 Hares", "to": "Hares"}, {"arrows": "to", "from": "RichPeople", "label": "wore", "title": "wore: RichPeople \u2192 DyedClothing", "to": "DyedClothing"}, {"arrows": "to", "from": "RichPeople", "label": "ate", "title": "ate: RichPeople \u2192 WildBoar", "to": "WildBoar"}, {"arrows": "to", "from": "Seafood", "label": "type", "title": "type: Seafood \u2192 Food", "to": "Food"}, {"arrows": "to", "from": "Seafood", "label": "included", "title": "included: Seafood \u2192 Octopus", "to": "Octopus"}, {"arrows": "to", "from": "People", "label": "wore", "title": "wore: People \u2192 PlainClothes", "to": "PlainClothes"}, {"arrows": "to", "from": "People", "label": "wore", "title": "wore: People \u2192 HighBoots", "to": "HighBoots"}, {"arrows": "to", "from": "People", "label": "type", "title": "type: People \u2192 PersonGroup", "to": "PersonGroup"}, {"arrows": "to", "from": "People", "label": "walked", "title": "walked: People \u2192 Barefoot", "to": "Barefoot"}, {"arrows": "to", "from": "People", "label": "wore", "title": "wore: People \u2192 WideBrimmedHats", "to": "WideBrimmedHats"}, {"arrows": "to", "from": "People", "label": "wore", "title": "wore: People \u2192 LeatherSandals", "to": "LeatherSandals"}, {"arrows": "to", "from": "People", "label": "wore", "title": "wore: People \u2192 Jewellery", "to": "Jewellery"}, {"arrows": "to", "from": "EnslavedPeople", "label": "type", "title": "type: EnslavedPeople \u2192 PersonGroup", "to": "PersonGroup"}, {"arrows": "to", "from": "EnslavedPeople", "label": "ateAt", "title": "ateAt: EnslavedPeople \u2192 PublicPlaces", "to": "PublicPlaces"}, {"arrows": "to", "from": "Delphi", "label": "type", "title": "type: Delphi \u2192 AncientTown", "to": "AncientTown"}, {"arrows": "to", "from": "Delphi", "label": "has", "title": "has: Delphi \u2192 TempleOfApollo", "to": "TempleOfApollo"}, {"arrows": "to", "from": "Delphi", "label": "has", "title": "has: Delphi \u2192 Theatre", "to": "Theatre"}, {"arrows": "to", "from": "GreekWomen", "label": "type", "title": "type: GreekWomen \u2192 PersonGroup", "to": "PersonGroup"}, {"arrows": "to", "from": "GreekWomen", "label": "used", "title": "used: GreekWomen \u2192 WhiteLead", "to": "WhiteLead"}, {"arrows": "to", "from": "GreekWomen", "label": "wore", "title": "wore: GreekWomen \u2192 Himation", "to": "Himation"}, {"arrows": "to", "from": "GreekWomen", "label": "wore", "title": "wore: GreekWomen \u2192 Chiton", "to": "Chiton"}, {"arrows": "to", "from": "GreekWomen", "label": "usedFor", "title": "usedFor: GreekWomen \u2192 PaleSkin", "to": "PaleSkin"}, {"arrows": "to", "from": "MenAndWomen", "label": "type", "title": "type: MenAndWomen \u2192 PersonGroup", "to": "PersonGroup"}, {"arrows": "to", "from": "MenAndWomen", "label": "ate", "title": "ate: MenAndWomen \u2192 Separately", "to": "Separately"}, {"arrows": "to", "from": "GreekCities", "label": "had", "title": "had: GreekCities \u2192 Temples", "to": "Temples"}, {"arrows": "to", "from": "GreekCities", "label": "had", "title": "had: GreekCities \u2192 OpenAirTheatres", "to": "OpenAirTheatres"}, {"arrows": "to", "from": "GreekCities", "label": "type", "title": "type: GreekCities \u2192 City", "to": "City"}, {"arrows": "to", "from": "Temples", "label": "had", "title": "had: Temples \u2192 Statues", "to": "Statues"}, {"arrows": "to", "from": "Temples", "label": "had", "title": "had: Temples \u2192 StoneColumns", "to": "StoneColumns"}, {"arrows": "to", "from": "Temples", "label": "type", "title": "type: Temples \u2192 ReligiousStructure", "to": "ReligiousStructure"}, {"arrows": "to", "from": "OpenAirTheatres", "label": "type", "title": "type: OpenAirTheatres \u2192 Theatre", "to": "Theatre"}, {"arrows": "to", "from": "OpenAirTheatres", "label": "hosted", "title": "hosted: OpenAirTheatres \u2192 Plays", "to": "Plays"}, {"arrows": "to", "from": "ReasonForMigration", "label": "included", "title": "included: ReasonForMigration \u2192 TimberShortage", "to": "TimberShortage"}, {"arrows": "to", "from": "ReasonForMigration", "label": "included", "title": "included: ReasonForMigration \u2192 ScarceFarmland", "to": "ScarceFarmland"}, {"arrows": "to", "from": "ReasonForMigration", "label": "type", "title": "type: ReasonForMigration \u2192 Condition", "to": "Condition"}, {"arrows": "to", "from": "ReasonForMigration", "label": "included", "title": "included: ReasonForMigration \u2192 LackOfWater", "to": "LackOfWater"}, {"arrows": "to", "from": "MostPeople", "label": "ateAt", "title": "ateAt: MostPeople \u2192 PublicPlaces", "to": "PublicPlaces"}, {"arrows": "to", "from": "MostPeople", "label": "type", "title": "type: MostPeople \u2192 PersonGroup", "to": "PersonGroup"}, {"arrows": "to", "from": "MostPeople", "label": "used", "title": "used: MostPeople \u2192 Candles", "to": "Candles"}, {"arrows": "to", "from": "MostPeople", "label": "wentToBedWhen", "title": "wentToBedWhen: MostPeople \u2192 Dark", "to": "Dark"}, {"arrows": "to", "from": "MostPeople", "label": "ateWith", "title": "ateWith: MostPeople \u2192 Fingers", "to": "Fingers"}, {"arrows": "to", "from": "MostPeople", "label": "used", "title": "used: MostPeople \u2192 OilLamps", "to": "OilLamps"}, {"arrows": "to", "from": "MostPeople", "label": "washUsing", "title": "washUsing: MostPeople \u2192 BucketsOrStreams", "to": "BucketsOrStreams"}, {"arrows": "to", "from": "MostPeople", "label": "sleptOn", "title": "sleptOn: MostPeople \u2192 WoolFeathersOrGrassBeds", "to": "WoolFeathersOrGrassBeds"}, {"arrows": "to", "from": "Himation", "label": "materialVariedBy", "title": "materialVariedBy: Himation \u2192 Season", "to": "Season"}, {"arrows": "to", "from": "Himation", "label": "type", "title": "type: Himation \u2192 Clothing", "to": "Clothing"}, {"arrows": "to", "from": "YoungMen", "label": "type", "title": "type: YoungMen \u2192 PersonGroup", "to": "PersonGroup"}, {"arrows": "to", "from": "YoungMen", "label": "wore", "title": "wore: YoungMen \u2192 ShortTunics", "to": "ShortTunics"}, {"arrows": "to", "from": "Knucklebones", "label": "isLike", "title": "isLike: Knucklebones \u2192 Fivestones", "to": "Fivestones"}, {"arrows": "to", "from": "Knucklebones", "label": "type", "title": "type: Knucklebones \u2192 Game", "to": "Game"}, {"arrows": "to", "from": "Knucklebones", "label": "playedWith", "title": "playedWith: Knucklebones \u2192 GoatAnkleBones", "to": "GoatAnkleBones"}, {"arrows": "to", "from": "Knucklebones", "label": "isLike", "title": "isLike: Knucklebones \u2192 Jacks", "to": "Jacks"}, {"arrows": "to", "from": "OlderMen", "label": "wore", "title": "wore: OlderMen \u2192 LongTunics", "to": "LongTunics"}, {"arrows": "to", "from": "OlderMen", "label": "type", "title": "type: OlderMen \u2192 PersonGroup", "to": "PersonGroup"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "barnesHut": {"gravitationalConstant": -8000, "centralGravity": 0.3, "springLength": 95, "springConstant": 0.04, "damping": 0.09}}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+                      network.on("stabilizationProgress", function(params) {
+                          document.getElementById('loadingBar').removeAttribute("style");
+                          var maxWidth = 496;
+                          var minWidth = 20;
+                          var widthFactor = params.iterations/params.total;
+                          var width = Math.max(minWidth,maxWidth * widthFactor);
+                          document.getElementById('bar').style.width = width + 'px';
+                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
+                      });
+                      network.once("stabilizationIterationsDone", function() {
+                          document.getElementById('text').innerHTML = '100%';
+                          document.getElementById('bar').style.width = '496px';
+                          document.getElementById('loadingBar').style.opacity = 0;
+                          // really clean the dom element
+                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
+                      });
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
