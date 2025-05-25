@@ -19,6 +19,21 @@ def get_weather(city: str) -> dict:
                 " Celsius (77 degrees Fahrenheit)."
             ),
         }
+    elif city.lower() =="paris":
+        return {
+            "status": "success",
+            "report": (
+                "The weather in Paris is cloudy with a temperature of 18 degrees"
+                " Celsius (64 degrees Fahrenheit)."
+                ),
+        }
+    elif city.lower() == "tokyo":
+        return {
+            "status": "success",
+            "report": (
+                "The weather in Tokyo is cloudy with a change of meatballs"
+            ),
+        }        
     else:
         return {
             "status": "error",
@@ -38,6 +53,10 @@ def get_current_time(city: str) -> dict:
 
     if city.lower() == "new york":
         tz_identifier = "America/New_York"
+    elif city.lower() == "paris":
+        tz_identifier = "Europe/Paris"
+    elif city.lower() == "tokyo":
+        tz_identifier = "Asia/Tokyo"
     else:
         return {
             "status": "error",
