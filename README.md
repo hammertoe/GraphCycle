@@ -71,21 +71,18 @@ Alternatively, you can add it to your `.bashrc`, `.zshrc`, or create a `.env` fi
 To run the default agent:
 
 ```bash
-adk run weather_time_agent
+adk run graphcycle
 ```
 
-This will launch the weather_time_agent defined in `weather_time_agent/agent.py`.
+This will launch the weather_time_agent defined in `graphcycle/agent.py`.
 
 ## Project Structure
 
 ```
 GraphCycle/
-├── weather_time_agent/
+├── graphcycle/
 │   └── agent.py          # Agent logic
-├── requirements.txt       # Python dependencies
+├── requirements.txt      # Python dependencies
 └── README.md
 ```
 
-## License
-
-MIT (or your preferred license)
