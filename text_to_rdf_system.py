@@ -153,8 +153,8 @@ def visualize_rdf_graph(tool_context: ToolContext) -> dict:
     """Visualizes the RDF graph stored in session state using NetworkX and Pyvis."""
 
     try:
-        ref_content = tool_context.state.get("rdf_graph", None)
-        if not ref_content:
+        rdf_content = tool_context.state.get("rdf_graph", None)
+        if not rdf_content:
             return {"status": "error", "error_message": "No RDF graph found in state"}
         
         # Helper functions
@@ -178,7 +178,7 @@ def visualize_rdf_graph(tool_context: ToolContext) -> dict:
 
         print("Loading RDF data...")
         g = Graph()
-        g.parse(data=ref_content, format="turtle")
+        g.parse(data=rdf_content, format="turtle")
         print(f"Successfully loaded {len(g)} triples")
             
         print("Building NetworkX graph...")
@@ -336,13 +336,13 @@ rdf_archiver_agent = Agent(
     output_key="archive_summary"
 )
 
-#Agent 4: RDF Visualiser
+#Agent 4: RDF Visualizer
 visualization_agent = Agent(
     name="visualizer",
     model="gemini-2.0-flash",
     description="Creates interactive HTML visualization from RDF graph.",
     instruction="""
-    Create an interactive HTML visualization from the RDF graph in state.
+    Create an interactive HTML visualization from the RDF from RDF Arhiver.
     Use create_visualization tool to generate the HTML file.
     The visualization will show nodes colored by connection count and interactive tooltips.
     """,
@@ -417,6 +417,9 @@ async def convert_and_visualize(input_filename: str, output_ttl: Optional[str] =
     final_state = session.state
     if "output_filename" in final_state:
         print(f"Output saved to: {final_state['output_filename']}")
+    if "visualization_filename" in final_state:
+        print(f"HTML visualization saved to: {final_state['visualization_filename']}")
+        print(f"Open {final_state['visualization_filename']} in your browser to view the interactive graph!")
     if "rdf_graph" in final_state:
         print(f"Graph preview:\n{final_state['rdf_graph'][:500]}...")
 
