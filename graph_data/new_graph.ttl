@@ -1,0 +1,31 @@
+@prefix schema1: <http://schema.org/> .
+
+<http://example.org/AlphabetInc> a schema1:Organization ;
+    schema1:foundingDate "2015" ;
+    schema1:name "Alphabet Inc." ;
+    schema1:subsidiary <http://example.org/Google> .
+
+<http://example.org/SundarPichai> a schema1:Person ;
+    schema1:jobTitle "CEO of Google" ;
+    schema1:name "Sundar Pichai" .
+
+<http://example.org/California> a schema1:Place ;
+    schema1:name "California" .
+
+<http://example.org/Google> a schema1:Organization ;
+    schema1:founder <http://example.org/LarryPage>,
+        <http://example.org/SergeyBrin> ;
+    schema1:foundingDate "1998" ;
+    schema1:location <http://example.org/StanfordUniversity> ;
+    schema1:name "Google" .
+
+<http://example.org/LarryPage> a schema1:Person ;
+    schema1:name "Larry Page" .
+
+<http://example.org/SergeyBrin> a schema1:Person ;
+    schema1:name "Sergey Brin" .
+
+<http://example.org/StanfordUniversity> a schema1:EducationalOrganization ;
+    schema1:location <http://example.org/California> ;
+    schema1:name "Stanford University" .
+

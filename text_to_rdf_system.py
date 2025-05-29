@@ -116,6 +116,11 @@ def save_to_file(filename: str, tool_context: ToolContext) -> dict:
                 "error_message": "No RDF graph found in state. Please ensure the conversion was successful."
             }
         
+        # Use the requested filename if provided
+        requested_filename = tool_context.state.get("requested_output_filename")
+        if requested_filename:
+            filename = requested_filename
+
         # Ensure filename has .ttl extension
         if not filename.endswith('.ttl'):
             filename += '.ttl'
@@ -178,9 +183,19 @@ def visualize_rdf_graph(tool_context: ToolContext) -> dict:
 
         print("Loading RDF data...")
         g = Graph()
-        g.parse(data=rdf_content, format="turtle")
-        print(f"Successfully loaded {len(g)} triples")
+
+        # debug attempt
+        try:
+            g.parse(data=rdf_content, format="turtle")
+            print(f"Successfully loaded {len(g)} triples")
+        except Exception as parse_error:
+            print(f"Parse error: {parse_error}")
+            return {"status": "error", "error_message": f"Failed to parse RDF: {parse_error}"}
             
+        if len(g) == 0:
+            return {"status": "error", "error_message": "No triples found in RDF graph"}
+            
+        
         print("Building NetworkX graph...")
         G = nx.DiGraph()
 
@@ -192,6 +207,12 @@ def visualize_rdf_graph(tool_context: ToolContext) -> dict:
             G.add_edge(subject_label, object_label, label=predicate_label)
 
         print(f"Created graph with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges")
+      #debug attempt
+
+        if G.number_of_nodes() == 0:
+            return {"status": "error", "error_message": "No nodes created from RDF graph"}
+
+
         print("Creating interactive visualization...")
         net = Network(height="800px", width="100%", directed=True)
 
@@ -233,19 +254,27 @@ def visualize_rdf_graph(tool_context: ToolContext) -> dict:
         net.show(output_file)
 
         if os.path.exists(output_file):
+            file_size = os.path.getsize(output_file)
             tool_context.state["visualization_filename"] = output_file
+            print(f"Successfully created HTML file: {output_file} ({file_size} bytes)")
             return {
                 "status": "success",
                 "message": f"Interactive visualization saved as: {output_file}",
                 "filename": output_file,
                 "nodes": G.number_of_nodes(),
-                "edges": G.number_of_edges()
+                "edges": G.number_of_edges(),
+                "file_size": file_size
             }
         else:
-            return {"status": "error", "error_message": f"HTML file was not created"}
+            return {"status": "error", "error_message": f"HTML file was not created {output_file}"}
 
     except Exception as e:
+        print(f"Visualization error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return {"status": "error", "error_message": f"Failed to create visualization: {str(e)}"}
+
+
 
 # Agent 1: Text Loader
 text_loader_agent = Agent(
@@ -262,6 +291,8 @@ text_loader_agent = Agent(
     
     If the user hasn't specified a filename, ask them for it.
     After loading, briefly describe the content (topic, length, type of text).
+
+     IMPORTANT: You MUST call the load_from_file tool. Extract the filename from the user's message.
     """,
     tools=[load_from_file],
     output_key="load_summary"
@@ -304,8 +335,8 @@ knowledge_graph_converter = Agent(
         schema:name "Example Corp" .
     ```
     
-    IMPORTANT: You must use the store_rdf_graph tool to save your RDF graph.
-    First create the complete RDF graph as a string, then call the tool with that string.
+     CRITICAL: You MUST call the store_rdf_graph tool with your complete RDF graph as a string.
+    Do not just describe what you would do - actually call the tool!
     
     Also provide a summary of the entities and relationships extracted.
     """,
@@ -322,15 +353,14 @@ rdf_archiver_agent = Agent(
     You are responsible for saving the RDF knowledge graph to a file.
     
     Your tasks:
-    1. Use the save_to_file tool to save the RDF graph from state["rdf_graph"]
-    2. If no output filename is specified, generate one based on:
-       - The source filename (if available in state["source_filename"])
-       - Or use a timestamp-based name like "knowledge_graph_YYYYMMDD_HHMMSS.ttl"
-    3. Actually call the tool.
-    4. Verify the save was successful
-    5. Provide a summary of what was saved
+    1. MUST call the save_to_file tool to save the RDF graph from state["rdf_graph"]
+    2. Use the requested filename from state if available, or generate a default name
+    3. Verify the save was successful
+    4. Provide a summary of what was saved
     
-    Report the filename, file size, and approximate number of triples saved.
+    CRITICAL: You MUST actually call the save_to_file tool. Do not just describe what you would do!
+    
+    For the filename parameter, use a simple name like the base filename with .ttl extension.
     """,
     tools=[save_to_file],
     output_key="archive_summary"
@@ -342,9 +372,16 @@ visualization_agent = Agent(
     model="gemini-2.0-flash",
     description="Creates interactive HTML visualization from RDF graph.",
     instruction="""
-    Create an interactive HTML visualization from the RDF from RDF Arhiver.
-    Use create_visualization tool to generate the HTML file.
-    The visualization will show nodes colored by connection count and interactive tooltips.
+    You are responsible for creating an interactive HTML visualization of the RDF graph.
+    
+    Your task:
+    1. MUST call the visualize_rdf_graph tool (it takes no parameters)
+    2. The tool will read the RDF graph from state["rdf_graph"] automatically
+    3. Verify the HTML file was created successfully
+    4. Report the visualization details
+    
+    CRITICAL: You MUST actually call the visualize_rdf_graph tool. Do not just describe what you would do!
+    The tool handles everything automatically - just call it.
     """,
     tools=[visualize_rdf_graph],
     output_key="visualization_summary"
@@ -415,13 +452,33 @@ async def convert_and_visualize(input_filename: str, output_ttl: Optional[str] =
     
     # Print final state summary
     final_state = session.state
+    print("\nFinal State Summary:")
+    print(f"- Loaded text: {'Yes' if 'loaded_text' in final_state else 'No'}")
+    print(f"- RDF graph stored: {'Yes' if 'rdf_graph' in final_state else 'No'}")
+    
     if "output_filename" in final_state:
-        print(f"Output saved to: {final_state['output_filename']}")
+        ttl_file = final_state['output_filename']
+        print(f"- TTL file saved: {ttl_file}")
+        if os.path.exists(ttl_file):
+            print(f"  ✓ File exists ({os.path.getsize(ttl_file)} bytes)")
+        else:
+            print(f"  ✗ File not found!")
+    else:
+        print("- TTL file saved: No")
+        
     if "visualization_filename" in final_state:
-        print(f"HTML visualization saved to: {final_state['visualization_filename']}")
-        print(f"Open {final_state['visualization_filename']} in your browser to view the interactive graph!")
-    if "rdf_graph" in final_state:
-        print(f"Graph preview:\n{final_state['rdf_graph'][:500]}...")
+        html_file = final_state['visualization_filename']
+        print(f"- HTML visualization: {html_file}")
+        if os.path.exists(html_file):
+            print(f"  ✓ File exists ({os.path.getsize(html_file)} bytes)")
+            print(f"  → Open {html_file} in your browser to view the interactive graph!")
+        else:
+            print(f"  ✗ File not found!")
+    else:
+        print("- HTML visualization: No")
+    
+    # Debug: Show what's in the state
+    print(f"\nState keys: {list(final_state.keys())}")
 
 # Example usage
 if __name__ == "__main__":
