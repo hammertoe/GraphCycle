@@ -1,0 +1,1020 @@
+(venv) matt@Matts-MacBook-Pro-2 GraphCycle % adk run kg_agent
+Log setup complete: /var/folders/q7/4j712pfx7995z3g8d37d3pph0000gn/T/agents_log/agent.20250529_193343.log
+To access latest log: tail -F /var/folders/q7/4j712pfx7995z3g8d37d3pph0000gn/T/agents_log/agent.latest.log
+Running agent KnowledgeGraphPipeline, type exit to exit.
+[user]: help
+[TextLoader]: I am a text loader agent. I can read the content of a file using the `read_file_content` tool and store the content in `state['raw_text']`. After reading the file, I will report the length of the text and the file path.
+
+[GraphBuilder]: Understood. I will await the `TextLoader` agent's output and create or refine a Turtle RDF graph based on the content of `state['raw_text']`. If `state['missing_items']` is also provided, I will ensure those are included in the graph as well.
+
+[GraphReviewer]: Okay, I understand. I will compare the `state['raw_text']` with `state['knowledge_graph']`. I will check if every entity and relationship from the `raw_text` is present in the `knowledge_graph`. If everything is captured, I will output the single word 'pass'. If something is missing, I will output 'fail', followed by a list of missing items. If everything is captured then I will use the `validate_turtle` tool to check the Turtle syntax. If the Turtle syntax is invalid I will put the error message in the output. If the Turtle syntax is valid I will put the output from the `validate_turtle` tool in `state['knowledge_graph']`.
+
+[GraphBuilder]: Okay, I understand the `GraphReviewer`'s role. I will generate a Turtle RDF graph based on the `state['raw_text']` and `state['missing_items']` (if present) to the best of my ability, anticipating that the `GraphReviewer` will then check it for completeness and validity. I will strive to create a complete and syntactically correct graph.
+
+[GraphReviewer]: Sounds good. I'm ready to review the graph once it's built.
+
+[GraphBuilder]: Understood. I will prioritize generating a comprehensive and valid Turtle RDF graph so that it can pass the `GraphReviewer`'s checks.
+
+[GraphReviewer]: Excellent. I'm ready when you are.
+
+[GraphBuilder]: Acknowledged. I am ready to receive the `state['raw_text']` and `state['missing_items']` (if any) to begin constructing the Turtle RDF graph. I will then output the graph.
+
+[GraphReviewer]: Okay, I will wait for the graph. Once I have it, I will perform my checks.
+
+[GraphBuilder]: Understood. I will focus on generating a correct and complete Turtle RDF graph to facilitate efficient review by the `GraphReviewer`.
+
+[GraphReviewer]: Understood. I'm ready to begin the review process whenever you are.
+
+[user]: graph_data/e.txt
+[TextLoader]: I have read the content of the file `graph_data/e.txt`. The length of the text is 10387 characters. I have stored the content in `state['raw_text']`.
+
+[GraphBuilder]: ```turtle
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+
+ex:POSITRON a ex:Product ;
+    rdfs:comment "Privacy-first, AI-driven intelligence assistant targeting senior management, sales and marketing teams, and C-suite users in SMEs." ;
+    ex:businessModel "SaaS" ;
+    ex:monetizationStrategy "Hybrid (consumer-style entry + enterprise-grade expansion)" ;
+    ex:targetMarket "Senior management, sales and marketing teams, C-suite users, SMEs" .
+
+ex:ASIMOVProtocol a ex:Organization ;
+    rdfs:comment "Decentralized structured knowledge ecosystem incentivized by ASIMOV Tokens." .
+
+ex:FreemiumTier a ex:ProductTier ;
+    rdfs:label "Freemium Tier" ;
+    rdfs:comment "Entry-level product focused on high-value productivity for individual executive." ;
+    ex:features "Private data reasoning, integrations with productivity apps (email, calendar, contacts, notetakers), local NLP processing, data interrogation, data set intersection, smart summarization" ;
+    ex:platform "Desktop/laptop (MacOS, Windows, Linux)" ;
+    ex:purpose "Remove friction to initial adoption, generate fast time-to-value, create viral usage patterns" ;
+    ex:monetizationStrategy "Trojan horse for higher-tier monetization" .
+
+ex:PremiumIndividualSubscription a ex:ProductTier ;
+    rdfs:label "Premium Individual Subscription" ;
+    ex:price "$20 p/user p/month" ;
+    ex:capabilities "Multi-device sync, access to public data reasoning, CRM integrations, social graph enrichment (LinkedIn, Crunchbase)" ;
+    ex:targetUser "Executives and power users with 'recall debt'" ;
+    ex:valueProposition "Increase recall accuracy, connect data points, automate preparation tasks, enable inferencing" .
+
+ex:EnterpriseB2BPlans a ex:ProductTier ;
+    rdfs:label "Enterprise/B2B Plans" ;
+    ex:pricingModel "Scalable ($10-$15 p/user p/month) with volume-based tiers and SLA-bound support" ;
+    ex:organizationalRollout "Bottom-up (premium user advocate) or Top-down (strategic sales to C-suites)" ;
+    ex:targetVerticals "Finance, healthcare, law, energy" .
+
+ex:DataMonetization a ex:Feature ;
+    rdfs:label "Data Monetization" ;
+    rdfs:comment "Users opt into incentivized sharing of anonymized data for ASIMOV Protocol." ;
+    ex:incentives "Token rewards, access to new functionality" ;
+    ex:privacyPreserved "Yes" .
+
+ex:RegionalVerticalPilots a ex:Strategy ;
+    rdfs:label "Regional and Vertical Pilots" ;
+    ex:targetRegions "US, UK, Canada, Singapore, UAE, Saudi Arabia, Qatar, India, Australia" ;
+    ex:targetVerticals "Sales-driven organizations, professional services, VC and PE firms, government departments" .
+
+ex:SMECount a ex:MarketData ;
+    rdfs:label "Global SME count" ;
+    ex:total "~400 million" ;
+    ex:targetSegment "~70 million (10-250 employees)" .
+
+ex:EnglishSpeakingMarkets a ex:MarketSegment ;
+    rdfs:label "Target in English Speaking Markets";
+    ex:countryData [
+        rdf:type rdf:Bag;
+        rdf:_1 [ rdf:type ex:CountryData; ex:country "United States"; ex:numberOfSMEs "33.2 million"; ex:source "U.S. Small Business Administration, 2023" ];
+        rdf:_2 [ rdf:type ex:CountryData; ex:country "United Kingdom"; ex:numberOfSMEs "5.45 million"; ex:source "UK Government, Business Population Estimates 2024" ];
+        rdf:_3 [ rdf:type ex:CountryData; ex:country "Canada"; ex:numberOfSMEs "1.29 million"; ex:source "Innovation, Science and Economic Development Canada, 2024" ];
+        rdf:_4 [ rdf:type ex:CountryData; ex:country "Australia"; ex:numberOfSMEs "2.52 million"; ex:source "Australian Bureau of Statistics, June 2023" ];
+        rdf:_5 [ rdf:type ex:CountryData; ex:country "New Zealand"; ex:numberOfSMEs "612,417"; ex:source "Statistics New Zealand, February 2024" ];
+        rdf:_6 [ rdf:type ex:CountryData; ex:country "Ireland"; ex:numberOfSMEs "389,654"; ex:source "Central Statistics Office Ireland, 2022" ];
+        rdf:_7 [ rdf:type ex:CountryData; ex:country "South Africa"; ex:numberOfSMEs "3 million"; ex:source "FinMark Trust, 2024" ];
+        rdf:_8 [ rdf:type ex:CountryData; ex:country "United Arab Emirates"; ex:numberOfSMEs "557,000"; ex:source "UAE Government Portal" ];
+        rdf:_9 [ rdf:type ex:CountryData; ex:country "Saudi Arabia"; ex:numberOfSMEs "Data not specified"; ex:source "Monsha'at SME Monitor Q4 2024" ];
+        rdf:_10 [ rdf:type ex:CountryData; ex:country "India"; ex:numberOfSMEs "73.4 million"; ex:source "Press Information Bureau, 2024" ];
+        rdf:_11 [ rdf:type ex:CountryData; ex:country "Singapore"; ex:numberOfSMEs "Data not specified"; ex:source "ADB Asia SME Monitor - Singapore" ];
+        rdf:_12 [ rdf:type ex:CountryData; ex:country "Indonesia"; ex:numberOfSMEs "66 million"; ex:source "KADIN Indonesia" ];
+        rdf:_13 [ rdf:type ex:CountryData; ex:country "Malaysia"; ex:numberOfSMEs "Data not specified"; ex:source "SME Corporation Malaysia" ];
+        rdf:_14 [ rdf:type ex:CountryData; ex:country "Hong Kong"; ex:numberOfSMEs "Data not specified"; ex:source "SCMP, 2025" ];
+        rdf:_15 [ rdf:type ex:CountryData; ex:country "Lebanon"; ex:numberOfSMEs "Data not specified"; ex:source "EU Neighbours, 2024" ];
+        rdf:_16 [ rdf:type ex:CountryData; ex:country "Jordan"; ex:numberOfSMEs "Data not specified"; ex:source "Jordan Chamber of Industry" ];
+        rdf:_17 [ rdf:type ex:CountryData; ex:country "Israel"; ex:numberOfSMEs "~540,000"; ex:source "Times of Israel, 2024" ];
+        rdf:_18 [ rdf:type ex:CountryData; ex:country "Egypt"; ex:numberOfSMEs "Data not specified"; ex:source "Ahram Online, 2024" ];
+        rdf:_19 [ rdf:type ex:CountryData; ex:country "Kenya"; ex:numberOfSMEs "Data not specified"; ex:source "FSD Kenya, 2024" ];
+        rdf:_20 [ rdf:type ex:CountryData; ex:country "Tanzania"; ex:numberOfSMEs "Over 3 million"; ex:source "TanzaniaInvest" ];
+        rdf:_21 [ rdf:type ex:CountryData; ex:country "Oman"; ex:numberOfSMEs "141,126"; ex:source "Oman News Agency, 2024" ];
+        rdf:_22 [ rdf:type ex:CountryData; ex:country "Uganda"; ex:numberOfSMEs "Data not specified"; ex:source "Ministry of Trade, Industry and Cooperatives, Uganda" ];
+        rdf:_23 [ rdf:type ex:CountryData; ex:country "Nigeria"; ex:numberOfSMEs "Data not specified"; ex:source "World Bank, 2024" ];
+        rdf:_24 [ rdf:type ex:CountryData; ex:country "Ghana"; ex:numberOfSMEs "Data not specified"; ex:source "World Bank, 2024" ];
+        rdf:_25 [ rdf:type ex:CountryData; ex:country "Mexico"; ex:numberOfSMEs "5.56 million"; ex:source "INEGI, 2024" ];
+    ] .
+
+ex:TAM a ex:MarketData ;
+    rdfs:label "Total Addressable User Base (TAM)" ;
+    ex:value "~175 million" .
+
+ex:SAM a ex:MarketData ;
+    rdfs:label "Serviceable Addressable Market (SAM)" ;
+    ex:value "$3.5 billion monthly" .
+
+ex:SOM a ex:MarketData ;
+    rdfs:label "Serviceable Obtainable Market (SOM)" ;
+    ex:value "$420 million/year" .
+
+ex:UnicornTarget a ex:Goal ;
+    rdfs:label "Unicorn Target" ;
+    ex:users "1 million" ;
+    ex:revenue "$240M/year" .
+
+ex:CustomerJourney a ex:Concept ;
+    rdfs:label "Customer Journey" ;
+    ex:phase1 [
+        rdf:type ex:Phase;
+        rdfs:label "Individual Activation";
+        ex:channelStrategy "Website download, social media, influencer advocacy, system integration partners, niche conferences";
+        ex:focus "Maximize installation-to-activation conversion, encourage data connectivity, optimize 'aha' moment";
+        ex:successMetrics "Downloads, DAU/WAU ratios, feature usage depth, NPS"
+    ];
+    ex:phase2 [
+        rdf:type ex:Phase;
+        rdfs:label "Team Expansion";
+        ex:conversion "Solo usage to team pilot via in-app referrals, usage analytics, shared context tooling";
+        ex:incentives "Team-based pricing, early adopter perks, feature unlocks";
+        ex:metrics "Seats per account, usage per org, referral rate, conversion velocity"
+    ];
+    ex:phase3 [
+        rdf:type ex:Phase;
+        rdfs:label "Enterprise Maturity";
+        ex:approach "Account-based selling targeting client facing, tech, knowledge management, strategy ops, performance monitoring";
+        ex:differentiation "Security/compliance";
+        ex:metrics "Deal size, ARR, sales cycle length, churn rate"
+    ];
+    ex:phase4 [
+        rdf:type ex:Phase;
+        rdfs:label "Protocol Participation";
+        ex:introduction "Token economy, trust graph concepts";
+        ex:bundling "Insights with ecosystem benefits, governance roles";
+        ex:metrics "Opt-in rate, token liquidity, data utility growth"
+    ] .
+
+ex:PricingStrategy a ex:Concept ;
+    rdfs:label "Pricing Strategy";
+    ex:freemium "Always-on, privacy-respecting entry point";
+    ex:premium "$20 p/month/user depending on features, region, billing cycle";
+    ex:enterprise "Custom deals with SLAs, integration fees, tiered onboarding via system integrators";
+    ex:tokenDiscounts "Optional token reward mechanism";
+    ex:pilots "Deeply discounted cohorts for brand champions and vertical testbeds (first 6-12 months)" .
+
+ex:Scalability a ex:Concept ;
+    rdfs:label "Scalability and Leverage Points";
+    ex:leveragePoints "Word-of-mouth, viral video content, local champions, enterprise expansion logic, ecosystem effects, open-source SDKs and APIs" .
+
+ex:RisksMitigation a ex:Concept ;
+    rdfs:label "Risks and Mitigation";
+    ex:adoptionRisk [
+        rdf:type ex:Risk;
+        rdfs:label "Adoption Risk";
+        ex:mitigation "Strong onboarding UX, early user feedback loops, guided product tours"
+    ];
+    ex:churnRisk [
+        rdf:type ex:Risk;
+        rdfs:label "Churn Risk";
+        ex:mitigation "Real-time insights, performance benchmarking, advanced alerts for inactive users"
+    ];
+    ex:privacyConcerns [
+        rdf:type ex:Risk;
+        rdfs:label "Privacy Concerns";
+        ex:mitigation "End-to-end encryption, on-device defaults, transparent opt-in pathways"
+    ];
+    ex:competitiveLandscape [
+        rdf:type ex:Risk;
+        rdfs:label "Competitive Landscape";
+        ex:mitigation "Differentiated stack, comparison video experience, first-mover integrations"
+    ] .
+
+ex:dubaiChamberCommerce a ex:Organization ;
+    rdfs:label "Dubai Chamber of Commerce";
+    ex:reach "557,000 registered SME members" .
+
+ex:CAC a ex:Metric ;
+  rdfs:label "Customer Acquisition Cost".
+
+ex:LTV a ex:Metric ;
+  rdfs:label "Lifetime Value".
+```
+[GraphReviewer]: Okay, I've received the Turtle RDF graph. Now I will compare it to the raw text in `state['raw_text']` to check for completeness.
+
+[GraphReviewer]: The Turtle syntax is valid. Now, let me compare the generated graph with the raw text to ensure everything is captured.
+
+After reviewing the raw text and the generated graph, I've identified a few missing items:
+
+*   **"POSITRON is the first product from the ASIMOV Protocol team."**: The relationship between POSITRON and ASIMOV Protocol as the developing team is missing.
+*   **Data Monetization - Token rewards**: It should be added what kind of tokens are being rewarded (ASIMOV Tokens).
+*   **Market Sizing and Revenue Potential - Average addressable roles per SME (senior management): ~2.5**: This information isn't present in the graph.
+*   **Missing some countries from EnglishSpeakingMarkets**: Some countries are missing from the EnglishSpeakingMarkets, data like `Oman`,`Mexico`, `Tanzania` ...
+
+Therefore, the graph is incomplete.
+
+```
+fail
+[relationship between POSITRON and ASIMOV Protocol as the developing team, type of tokens being rewarded in Data Monetization (ASIMOV Tokens), average addressable roles per SME, missing countries from EnglishSpeakingMarkets]
+```
+
+[GraphBuilder]: Okay, I will refine the Turtle RDF graph to include the missing items identified by the `GraphReviewer`.
+
+```turtle
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+
+ex:POSITRON a ex:Product ;
+    rdfs:comment "Privacy-first, AI-driven intelligence assistant targeting senior management, sales and marketing teams, and C-suite users in SMEs." ;
+    ex:businessModel "SaaS" ;
+    ex:monetizationStrategy "Hybrid (consumer-style entry + enterprise-grade expansion)" ;
+    ex:targetMarket "Senior management, sales and marketing teams, C-suite users, SMEs" ;
+    ex:developedBy ex:ASIMOVProtocol .  # Added relationship
+
+ex:ASIMOVProtocol a ex:Organization ;
+    rdfs:comment "Decentralized structured knowledge ecosystem incentivized by ASIMOV Tokens." .
+
+ex:FreemiumTier a ex:ProductTier ;
+    rdfs:label "Freemium Tier" ;
+    rdfs:comment "Entry-level product focused on high-value productivity for individual executive." ;
+    ex:features "Private data reasoning, integrations with productivity apps (email, calendar, contacts, notetakers), local NLP processing, data interrogation, data set intersection, smart summarization" ;
+    ex:platform "Desktop/laptop (MacOS, Windows, Linux)" ;
+    ex:purpose "Remove friction to initial adoption, generate fast time-to-value, create viral usage patterns" ;
+    ex:monetizationStrategy "Trojan horse for higher-tier monetization" .
+
+ex:PremiumIndividualSubscription a ex:ProductTier ;
+    rdfs:label "Premium Individual Subscription" ;
+    ex:price "$20 p/user p/month" ;
+    ex:capabilities "Multi-device sync, access to public data reasoning, CRM integrations, social graph enrichment (LinkedIn, Crunchbase)" ;
+    ex:targetUser "Executives and power users with 'recall debt'" ;
+    ex:valueProposition "Increase recall accuracy, connect different data points, with context depth, automate preparation tasks, enable inferencing" .
+
+ex:EnterpriseB2BPlans a ex:ProductTier ;
+    rdfs:label "Enterprise/B2B Plans" ;
+    ex:pricingModel "Scalable ($10-$15 p/user p/month) with volume-based tiers and SLA-bound support" ;
+    ex:organizationalRollout "Bottom-up (premium user advocate) or Top-down (strategic sales to C-suites)" ;
+    ex:targetVerticals "Finance, healthcare, law, energy" .
+
+ex:DataMonetization a ex:Feature ;
+    rdfs:label "Data Monetization" ;
+    rdfs:comment "Users opt into incentivized sharing of anonymized data for ASIMOV Protocol." ;
+    ex:incentives "Token rewards, access to new functionality" ;
+    ex:rewardToken ex:ASIMOVTokens ; # Added token type
+    ex:privacyPreserved "Yes" .
+
+ex:ASIMOVTokens a ex:TokenType ;
+    rdfs:label "ASIMOV Tokens" .
+
+ex:RegionalVerticalPilots a ex:Strategy ;
+    rdfs:label "Regional and Vertical Pilots" ;
+    ex:targetRegions "US, UK, Canada, Singapore, UAE, Saudi Arabia, Qatar, India, Australia" ;
+    ex:targetVerticals "Sales-driven organizations, professional services, VC and PE firms, government departments" .
+
+ex:SMECount a ex:MarketData ;
+    rdfs:label "Global SME count" ;
+    ex:total "~400 million" ;
+    ex:targetSegment "~70 million (10-250 employees)" .
+
+ex:AddressableRolesPerSME a ex:MarketData ; #Added average addressable roles
+    rdfs:label "Average addressable roles per SME (senior management)";
+    ex:value "~2.5".
+
+ex:EnglishSpeakingMarkets a ex:MarketSegment ;
+    rdfs:label "Target in English Speaking Markets";
+    ex:countryData [
+        rdf:type rdf:Bag;
+        rdf:_1 [ rdf:type ex:CountryData; ex:country "United States"; ex:numberOfSMEs "33.2 million"; ex:source "U.S. Small Business Administration, 2023" ];
+        rdf:_2 [ rdf:type ex:CountryData; ex:country "United Kingdom"; ex:numberOfSMEs "5.45 million"; ex:source "UK Government, Business Population Estimates 2024" ];
+        rdf:_3 [ rdf:type ex:CountryData; ex:country "Canada"; ex:numberOfSMEs "1.29 million"; ex:source "Innovation, Science and Economic Development Canada, 2024" ];
+        rdf:_4 [ rdf:type ex:CountryData; ex:country "Australia"; ex:numberOfSMEs "2.52 million"; ex:source "Australian Bureau of Statistics, June 2023" ];
+        rdf:_5 [ rdf:type ex:CountryData; ex:country "New Zealand"; ex:numberOfSMEs "612,417"; ex:source "Statistics New Zealand, February 2024" ];
+        rdf:_6 [ rdf:type ex:CountryData; ex:country "Ireland"; ex:numberOfSMEs "389,654"; ex:source "Central Statistics Office Ireland, 2022" ];
+        rdf:_7 [ rdf:type ex:CountryData; ex:country "South Africa"; ex:numberOfSMEs "3 million"; ex:source "FinMark Trust, 2024" ];
+        rdf:_8 [ rdf:type ex:CountryData; ex:country "United Arab Emirates"; ex:numberOfSMEs "557,000"; ex:source "UAE Government Portal" ];
+        rdf:_9 [ rdf:type ex:CountryData; ex:country "Saudi Arabia"; ex:numberOfSMEs "Data not specified"; ex:source "Monsha'at SME Monitor Q4 2024" ];
+        rdf:_10 [ rdf:type ex:CountryData; ex:country "India"; ex:numberOfSMEs "73.4 million"; ex:source "Press Information Bureau, 2024" ];
+        rdf:_11 [ rdf:type ex:CountryData; ex:country "Singapore"; ex:numberOfSMEs "Data not specified"; ex:source "ADB Asia SME Monitor - Singapore" ];
+        rdf:_12 [ rdf:type ex:CountryData; ex:country "Indonesia"; ex:numberOfSMEs "66 million"; ex:source "KADIN Indonesia" ];
+        rdf:_13 [ rdf:type ex:CountryData; ex:country "Malaysia"; ex:numberOfSMEs "Data not specified"; ex:source "SME Corporation Malaysia" ];
+        rdf:_14 [ rdf:type ex:CountryData; ex:country "Hong Kong"; ex:numberOfSMEs "Data not specified"; ex:source "SCMP, 2025" ];
+        rdf:_15 [ rdf:type ex:CountryData; ex:country "Lebanon"; ex:numberOfSMEs "Data not specified"; ex:source "EU Neighbours, 2024" ];
+        rdf:_16 [ rdf:type ex:CountryData; ex:country "Jordan"; ex:numberOfSMEs "Data not specified"; ex:source "Jordan Chamber of Industry" ];
+        rdf:_17 [ rdf:type ex:CountryData; ex:country "Israel"; ex:numberOfSMEs "~540,000"; ex:source "Times of Israel, 2024" ];
+        rdf:_18 [ rdf:type ex:CountryData; ex:country "Egypt"; ex:numberOfSMEs "Data not specified"; ex:source "Ahram Online, 2024" ];
+        rdf:_19 [ rdf:type ex:CountryData; ex:country "Kenya"; ex:numberOfSMEs "Data not specified"; ex:source "FSD Kenya, 2024" ];
+        rdf:_20 [ rdf:type ex:CountryData; ex:country "Tanzania"; ex:numberOfSMEs "Over 3 million"; ex:source "TanzaniaInvest" ];
+        rdf:_21 [ rdf:type ex:CountryData; ex:country "Oman"; ex:numberOfSMEs "141,126"; ex:source "Oman News Agency, 2024" ];
+        rdf:_22 [ rdf:type ex:CountryData; ex:country "Uganda"; ex:numberOfSMEs "Data not specified"; ex:source "Ministry of Trade, Industry and Cooperatives, Uganda" ];
+        rdf:_23 [ rdf:type ex:CountryData; ex:country "Nigeria"; ex:numberOfSMEs "Data not specified"; ex:source "World Bank, 2024" ];
+        rdf:_24 [ rdf:type ex:CountryData; ex:country "Ghana"; ex:numberOfSMEs "Data not specified"; ex:source "World Bank, 2024" ];
+        rdf:_25 [ rdf:type ex:CountryData; ex:country "Mexico"; ex:numberOfSMEs "5.56 million"; ex:source "INEGI, 2024" ];
+    ] .
+
+ex:TAM a ex:MarketData ;
+    rdfs:label "Total Addressable User Base (TAM)" ;
+    ex:value "~175 million" .
+
+ex:SAM a ex:MarketData ;
+    rdfs:label "Serviceable Addressable Market (SAM)" ;
+    ex:value "$3.5 billion monthly" .
+
+ex:SOM a ex:MarketData ;
+    rdfs:label "Serviceable Obtainable Market (SOM)" ;
+    ex:value "$420 million/year" .
+
+ex:UnicornTarget a ex:Goal ;
+    rdfs:label "Unicorn Target" ;
+    ex:users "1 million" ;
+    ex:revenue "$240M/year" .
+
+ex:CustomerJourney a ex:Concept ;
+    rdfs:label "Customer Journey" ;
+    ex:phase1 [
+        rdf:type ex:Phase;
+        rdfs:label "Individual Activation";
+        ex:channelStrategy "Website download, social media, influencer advocacy, system integration partners, niche conferences";
+        ex:focus "Maximize installation-to-activation conversion, encourage data connectivity, optimize the 'aha' moment";
+        ex:successMetrics "Downloads, DAU/WAU ratios, feature usage depth, NPS"
+    ];
+    ex:phase2 [
+        rdf:type ex:Phase;
+        rdfs:label "Team Expansion";
+        ex:conversion "Solo usage to team pilot using in-app referrals, usage analytics, and shared context tooling";
+        ex:incentives "Team-based pricing, early adopter perks, feature unlocks";
+        ex:metrics "Seats per account, usage per org, referral rate, conversion velocity"
+    ];
+    ex:phase3 [
+        rdf:type ex:Phase;
+        rdfs:label "Enterprise Maturity";
+        ex:approach "Account-based selling: target client facing, tech, knowledge management, strategy ops, performance monitoring";
+        ex:differentiation "Security/compliance as differentiators; build case studies and references";
+        ex:metrics "Deal size, ARR, sales cycle length, churn rate"
+    ];
+    ex:phase4 [
+        rdf:type ex:Phase;
+        rdfs:label "Protocol Participation";
+        ex:introduction "Introduce users to token economy, trust graph concepts";
+        ex:bundling "Bundle insights with ecosystem benefits, governance roles";
+        ex:metrics "Opt-in rate, token liquidity, data utility growth"
+    ] .
+
+ex:PricingStrategy a ex:Concept ;
+    rdfs:label "Pricing Strategy";
+    ex:freemium "Always-on, privacy-respecting entry point";
+    ex:premium "$20 p/month/user depending on features, region, and billing cycle (monthly vs annual)";
+    ex:enterprise "Custom deals with SLAs, integration fees, tiered onboarding through system integrators";
+    ex:tokenDiscounts "Optional token reward mechanism to reduce cost-of-ownership for protocol-aligned contributors";
+    ex:pilots "First 6–12 months include deeply discounted cohorts for brand champions and vertical testbeds" .
+
+ex:Scalability a ex:Concept ;
+    rdfs:label "Scalability and Leverage Points";
+    ex:leveragePoints "High word-of-mouth potential from early adopters with outsized influence (e.g., Founders, CMOs, VCs), Viral - high quality video content production, Comparison videos of use cases (with and without), Local champions enable hypergrowth in key territories, Clear enterprise expansion logic tied to productivity ROI, Ecosystem effects as knowledge assets grow in the protocol, Open-source SDKs and API integrations enable third-party developers to build on top of POSITRON or connect with internal systems" .
+
+ex:RisksMitigation a ex:Concept ;
+    rdfs:label "Risks and Mitigation";
+    ex:adoptionRisk [
+        rdf:type ex:Risk;
+        rdfs:label "Adoption Risk";
+        ex:mitigation "Strong onboarding UX, early user feedback loops, guided product tours"
+    ];
+    ex:churnRisk [
+        rdf:type ex:Risk;
+        rdfs:label "Churn Risk";
+        ex:mitigation "Real-time insights, performance benchmarking, advanced alerts for inactive users"
+    ];
+    ex:privacyConcerns [
+        rdf:type ex:Risk;
+        rdfs:label "Privacy Concerns";
+        ex:mitigation "End-to-end encryption, on-device defaults, transparent opt-in pathways for any external data usage"
+    ];
+    ex:competitiveLandscape [
+        rdf:type ex:Risk;
+        rdfs:label "Competitive Landscape";
+        ex:mitigation "Emphasize differentiated stack (local compute + protocol intelligence), comparison video experience, first-mover integrations"
+    ] .
+
+ex:dubaiChamberCommerce a ex:Organization ;
+    rdfs:label "Dubai Chamber of Commerce";
+    ex:reach "557,000 registered SME members" .
+
+ex:CAC a ex:Metric ;
+  rdfs:label "Customer Acquisition Cost".
+
+ex:LTV a ex:Metric ;
+  rdfs:label "Lifetime Value".
+```
+[GraphReviewer]: Okay, I've received the refined Turtle RDF graph. I will now compare it to the raw text in `state['raw_text']` to check for completeness and then validate the Turtle syntax.
+
+[GraphReviewer]: The Turtle syntax is valid.
+
+After reviewing the raw text and the generated graph, I've identified a few missing items:
+
+*   The phrase "A new segment. Future documents will detail product-LTV modeling, channel-specific CAC strategies, and regional P&L frameworks to support ongoing investor, partner, and internal stakeholder alignment." is not represented in the graph. It indicates future work and documentation related to LTV, CAC, and P&L frameworks.
+*   The graph includes the property `ex:differentiation "Security/compliance as differentiators; build case studies and references"` for the `Enterprise Maturity` phase of the `CustomerJourney`, but the text specifies that the differentiation is about "Security/compliance". The "build case studies and references" part is more about the marketing approach.
+
+Therefore, the graph is still incomplete.
+
+```
+fail
+[Future work/documentation related to LTV, CAC, and P&L frameworks, differentiation of the Enterprise Maturity phase]
+```
+[GraphBuilder]: ```turtle
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+
+ex:POSITRON a ex:Product ;
+    rdfs:comment "Privacy-first, AI-driven intelligence assistant targeting senior management, sales and marketing teams, and C-suite users in SMEs." ;
+    ex:businessModel "SaaS" ;
+    ex:monetizationStrategy "Hybrid (consumer-style entry + enterprise-grade expansion)" ;
+    ex:targetMarket "Senior management, sales and marketing teams, C-suite users, SMEs" ;
+    ex:developedBy ex:ASIMOVProtocol .  # Added relationship
+
+ex:ASIMOVProtocol a ex:Organization ;
+    rdfs:comment "Decentralized structured knowledge ecosystem incentivized by ASIMOV Tokens." .
+
+ex:FreemiumTier a ex:ProductTier ;
+    rdfs:label "Freemium Tier" ;
+    rdfs:comment "Entry-level product focused on high-value productivity for individual executive." ;
+    ex:features "Private data reasoning, integrations with productivity apps (email, calendar, contacts, notetakers), local NLP processing, data interrogation, data set intersection, smart summarization" ;
+    ex:platform "Desktop/laptop (MacOS, Windows, Linux)" ;
+    ex:purpose "Remove friction to initial adoption, generate fast time-to-value, create viral usage patterns" ;
+    ex:monetizationStrategy "Trojan horse for higher-tier monetization" .
+
+ex:PremiumIndividualSubscription a ex:ProductTier ;
+    rdfs:label "Premium Individual Subscription" ;
+    ex:price "$20 p/user p/month" ;
+    ex:capabilities "Multi-device sync, access to public data reasoning, CRM integrations, social graph enrichment (LinkedIn, Crunchbase)" ;
+    ex:targetUser "Executives and power users with 'recall debt'" ;
+    ex:valueProposition "Increase recall accuracy, connect different data points, with context depth, automate preparation tasks, enable inferencing" .
+
+ex:EnterpriseB2BPlans a ex:ProductTier ;
+    rdfs:label "Enterprise/B2B Plans" ;
+    ex:pricingModel "Scalable ($10-$15 p/user p/month) with volume-based tiers and SLA-bound support" ;
+    ex:organizationalRollout "Bottom-up (premium user advocate) or Top-down (strategic sales to C-suites)" ;
+    ex:targetVerticals "Finance, healthcare, law, energy" .
+
+ex:DataMonetization a ex:Feature ;
+    rdfs:label "Data Monetization" ;
+    rdfs:comment "Users opt into incentivized sharing of anonymized data for ASIMOV Protocol." ;
+    ex:incentives "Token rewards, access to new functionality" ;
+    ex:rewardToken ex:ASIMOVTokens ; # Added token type
+    ex:privacyPreserved "Yes" .
+
+ex:ASIMOVTokens a ex:TokenType ;
+    rdfs:label "ASIMOV Tokens" .
+
+ex:RegionalVerticalPilots a ex:Strategy ;
+    rdfs:label "Regional and Vertical Pilots" ;
+    ex:targetRegions "US, UK, Canada, Singapore, UAE, Saudi Arabia, Qatar, India, Australia" ;
+    ex:targetVerticals "Sales-driven organizations, professional services, VC and PE firms, government departments" .
+
+ex:SMECount a ex:MarketData ;
+    rdfs:label "Global SME count" ;
+    ex:total "~400 million" ;
+    ex:targetSegment "~70 million (10-250 employees)" .
+
+ex:AddressableRolesPerSME a ex:MarketData ; #Added average addressable roles
+    rdfs:label "Average addressable roles per SME (senior management)";
+    ex:value "~2.5".
+
+ex:EnglishSpeakingMarkets a ex:MarketSegment ;
+    rdfs:label "Target in English Speaking Markets";
+    ex:countryData [
+        rdf:type rdf:Bag;
+        rdf:_1 [ rdf:type ex:CountryData; ex:country "United States"; ex:numberOfSMEs "33.2 million"; ex:source "U.S. Small Business Administration, 2023" ];
+        rdf:_2 [ rdf:type ex:CountryData; ex:country "United Kingdom"; ex:numberOfSMEs "5.45 million"; ex:source "UK Government, Business Population Estimates 2024" ];
+        rdf:_3 [ rdf:type ex:CountryData; ex:country "Canada"; ex:numberOfSMEs "1.29 million"; ex:source "Innovation, Science and Economic Development Canada, 2024" ];
+        rdf:_4 [ rdf:type ex:CountryData; ex:country "Australia"; ex:numberOfSMEs "2.52 million"; ex:source "Australian Bureau of Statistics, June 2023" ];
+        rdf:_5 [ rdf:type ex:CountryData; ex:country "New Zealand"; ex:numberOfSMEs "612,417"; ex:source "Statistics New Zealand, February 2024" ];
+        rdf:_6 [ rdf:type ex:CountryData; ex:country "Ireland"; ex:numberOfSMEs "389,654"; ex:source "Central Statistics Office Ireland, 2022" ];
+        rdf:_7 [ rdf:type ex:CountryData; ex:country "South Africa"; ex:numberOfSMEs "3 million"; ex:source "FinMark Trust, 2024" ];
+        rdf:_8 [ rdf:type ex:CountryData; ex:country "United Arab Emirates"; ex:numberOfSMEs "557,000"; ex:source "UAE Government Portal" ];
+        rdf:_9 [ rdf:type ex:CountryData; ex:country "Saudi Arabia"; ex:numberOfSMEs "Data not specified"; ex:source "Monsha'at SME Monitor Q4 2024" ];
+        rdf:_10 [ rdf:type ex:CountryData; ex:country "India"; ex:numberOfSMEs "73.4 million"; ex:source "Press Information Bureau, 2024" ];
+        rdf:_11 [ rdf:type ex:CountryData; ex:country "Singapore"; ex:numberOfSMEs "Data not specified"; ex:source "ADB Asia SME Monitor - Singapore" ];
+        rdf:_12 [ rdf:type ex:CountryData; ex:country "Indonesia"; ex:numberOfSMEs "66 million"; ex:source "KADIN Indonesia" ];
+        rdf:_13 [ rdf:type ex:CountryData; ex:country "Malaysia"; ex:numberOfSMEs "Data not specified"; ex:source "SME Corporation Malaysia" ];
+        rdf:_14 [ rdf:type ex:CountryData; ex:country "Hong Kong"; ex:numberOfSMEs "Data not specified"; ex:source "SCMP, 2025" ];
+        rdf:_15 [ rdf:type ex:CountryData; ex:country "Lebanon"; ex:numberOfSMEs "Data not specified"; ex:source "EU Neighbours, 2024" ];
+        rdf:_16 [ rdf:type ex:CountryData; ex:country "Jordan"; ex:numberOfSMEs "Data not specified"; ex:source "Jordan Chamber of Industry" ];
+        rdf:_17 [ rdf:type ex:CountryData; ex:country "Israel"; ex:numberOfSMEs "~540,000"; ex:source "Times of Israel, 2024" ];
+        rdf:_18 [ rdf:type ex:CountryData; ex:country "Egypt"; ex:numberOfSMEs "Data not specified"; ex:source "Ahram Online, 2024" ];
+        rdf:_19 [ rdf:type ex:CountryData; ex:country "Kenya"; ex:numberOfSMEs "Data not specified"; ex:source "FSD Kenya, 2024" ];
+        rdf:_20 [ rdf:type ex:CountryData; ex:country "Tanzania"; ex:numberOfSMEs "Over 3 million"; ex:source "TanzaniaInvest" ];
+        rdf:_21 [ rdf:type ex:CountryData; ex:country "Oman"; ex:numberOfSMEs "141,126"; ex:source "Oman News Agency, 2024" ];
+        rdf:_22 [ rdf:type ex:CountryData; ex:country "Uganda"; ex:numberOfSMEs "Data not specified"; ex:source "Ministry of Trade, Industry and Cooperatives, Uganda" ];
+        rdf:_23 [ rdf:type ex:CountryData; ex:country "Nigeria"; ex:numberOfSMEs "Data not specified"; ex:source "World Bank, 2024" ];
+        rdf:_24 [ rdf:type ex:CountryData; ex:country "Ghana"; ex:numberOfSMEs "Data not specified"; ex:source "World Bank, 2024" ];
+        rdf:_25 [ rdf:type ex:CountryData; ex:country "Mexico"; ex:numberOfSMEs "5.56 million"; ex:source "INEGI, 2024" ];
+    ] .
+
+ex:TAM a ex:MarketData ;
+    rdfs:label "Total Addressable User Base (TAM)" ;
+    ex:value "~175 million" .
+
+ex:SAM a ex:MarketData ;
+    rdfs:label "Serviceable Addressable Market (SAM)" ;
+    ex:value "$3.5 billion monthly" .
+
+ex:SOM a ex:MarketData ;
+    rdfs:label "Serviceable Obtainable Market (SOM)" ;
+    ex:value "$420 million/year" .
+
+ex:UnicornTarget a ex:Goal ;
+    rdfs:label "Unicorn Target" ;
+    ex:users "1 million" ;
+    ex:revenue "$240M/year" .
+
+ex:CustomerJourney a ex:Concept ;
+    rdfs:label "Customer Journey" ;
+    ex:phase1 [
+        rdf:type ex:Phase;
+        rdfs:label "Individual Activation";
+        ex:channelStrategy "Website download, social media, influencer advocacy, system integration partners, niche conferences";
+        ex:focus "Maximize installation-to-activation conversion, encourage data connectivity, optimize the 'aha' moment";
+        ex:successMetrics "Downloads, DAU/WAU ratios, feature usage depth, NPS"
+    ];
+    ex:phase2 [
+        rdf:type ex:Phase;
+        rdfs:label "Team Expansion";
+        ex:conversion "Solo usage to team pilot using in-app referrals, usage analytics, and shared context tooling";
+        ex:incentives "Team-based pricing, early adopter perks, feature unlocks";
+        ex:metrics "Seats per account, usage per org, referral rate, conversion velocity"
+    ];
+    ex:phase3 [
+        rdf:type ex:Phase;
+        rdfs:label "Enterprise Maturity";
+        ex:approach "Account-based selling: target client facing, tech, knowledge management, strategy ops, performance monitoring";
+        ex:differentiation "Security/compliance";
+        ex:marketingApproach "build case studies and references". #Added marketing approach
+        ex:metrics "Deal size, ARR, sales cycle length, churn rate"
+    ];
+    ex:phase4 [
+        rdf:type ex:Phase;
+        rdfs:label "Protocol Participation";
+        ex:introduction "Introduce users to token economy, trust graph concepts";
+        ex:bundling "Bundle insights with ecosystem benefits, governance roles";
+        ex:metrics "Opt-in rate, token liquidity, data utility growth"
+    ] .
+
+ex:PricingStrategy a ex:Concept ;
+    rdfs:label "Pricing Strategy";
+    ex:freemium "Always-on, privacy-respecting entry point";
+    ex:premium "$20 p/month/user depending on features, region, and billing cycle (monthly vs annual)";
+    ex:enterprise "Custom deals with SLAs, integration fees, tiered onboarding through system integrators";
+    ex:tokenDiscounts "Optional token reward mechanism to reduce cost-of-ownership for protocol-aligned contributors";
+    ex:pilots "First 6–12 months include deeply discounted cohorts for brand champions and vertical testbeds" .
+
+ex:Scalability a ex:Concept ;
+    rdfs:label "Scalability and Leverage Points";
+    ex:leveragePoints "High word-of-mouth potential from early adopters with outsized influence (e.g., Founders, CMOs, VCs), Viral - high quality video content production, Comparison videos of use cases (with and without), Local champions enable hypergrowth in key territories, Clear enterprise expansion logic tied to productivity ROI, Ecosystem effects as knowledge assets grow in the protocol, Open-source SDKs and API integrations enable third-party developers to build on top of POSITRON or connect with internal systems" .
+
+ex:RisksMitigation a ex:Concept ;
+    rdfs:label "Risks and Mitigation";
+    ex:adoptionRisk [
+        rdf:type ex:Risk;
+        rdfs:label "Adoption Risk";
+        ex:mitigation "Strong onboarding UX, early user feedback loops, guided product tours"
+    ];
+    ex:churnRisk [
+        rdf:type ex:Risk;
+        rdfs:label "Churn Risk";
+        ex:mitigation "Real-time insights, performance benchmarking, advanced alerts for inactive users"
+    ];
+    ex:privacyConcerns [
+        rdf:type ex:Risk;
+        rdfs:label "Privacy Concerns";
+        ex:mitigation "End-to-end encryption, on-device defaults, transparent opt-in pathways for any external data usage"
+    ];
+    ex:competitiveLandscape [
+        rdf:type ex:Risk;
+        rdfs:label "Competitive Landscape";
+        ex:mitigation "Emphasize differentiated stack (local compute + protocol intelligence), comparison video experience, first-mover integrations"
+    ] .
+
+ex:dubaiChamberCommerce a ex:Organization ;
+    rdfs:label "Dubai Chamber of Commerce";
+    ex:reach "557,000 registered SME members" .
+
+ex:CAC a ex:Metric ;
+  rdfs:label "Customer Acquisition Cost".
+
+ex:LTV a ex:Metric ;
+  rdfs:label "Lifetime Value".
+
+ex:FutureWork a ex:Concept; # Added future work concept
+    rdfs:label "Future Work";
+    ex:includes "product-LTV modeling, channel-specific CAC strategies, and regional P&L frameworks".
+```
+[GraphBuilder]: ```turtle
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+
+ex:POSITRON a ex:Product ;
+    rdfs:comment "Privacy-first, AI-driven intelligence assistant targeting senior management, sales and marketing teams, and C-suite users in SMEs." ;
+    ex:businessModel "SaaS" ;
+    ex:monetizationStrategy "Hybrid (consumer-style entry + enterprise-grade expansion)" ;
+    ex:targetMarket "Senior management, sales and marketing teams, C-suite users, SMEs" ;
+    ex:developedBy ex:ASIMOVProtocol .
+
+ex:ASIMOVProtocol a ex:Organization ;
+    rdfs:comment "Decentralized structured knowledge ecosystem incentivized by ASIMOV Tokens." .
+
+ex:FreemiumTier a ex:ProductTier ;
+    rdfs:label "Freemium Tier" ;
+    rdfs:comment "Entry-level product focused on high-value productivity for individual executive." ;
+    ex:features "Private data reasoning, integrations with productivity apps (email, calendar, contacts, notetakers), local NLP processing, data interrogation, data set intersection, smart summarization" ;
+    ex:platform "Desktop/laptop (MacOS, Windows, Linux)" ;
+    ex:purpose "Remove friction to initial adoption, generate fast time-to-value, create viral usage patterns" ;
+    ex:monetizationStrategy "Trojan horse for higher-tier monetization" .
+
+ex:PremiumIndividualSubscription a ex:ProductTier ;
+    rdfs:label "Premium Individual Subscription" ;
+    ex:price "$20 p/user p/month" ;
+    ex:capabilities "Multi-device sync, access to public data reasoning, CRM integrations, social graph enrichment (LinkedIn, Crunchbase)" ;
+    ex:targetUser "Executives and power users with 'recall debt'" ;
+    ex:valueProposition "Increase recall accuracy, connect different data points, with context depth, automate preparation tasks, enable inferencing" .
+
+ex:EnterpriseB2BPlans a ex:ProductTier ;
+    rdfs:label "Enterprise/B2B Plans" ;
+    ex:pricingModel "Scalable ($10-$15 p/user p/month) with volume-based tiers and SLA-bound support" ;
+    ex:organizationalRollout "Bottom-up (premium user advocate) or Top-down (strategic sales to C-suites)" ;
+    ex:targetVerticals "Finance, healthcare, law, energy" .
+
+ex:DataMonetization a ex:Feature ;
+    rdfs:label "Data Monetization" ;
+    rdfs:comment "Users opt into incentivized sharing of anonymized data for ASIMOV Protocol." ;
+    ex:incentives "Token rewards, access to new functionality" ;
+    ex:rewardToken ex:ASIMOVTokens ;
+    ex:privacyPreserved "Yes" .
+
+ex:ASIMOVTokens a ex:TokenType ;
+    rdfs:label "ASIMOV Tokens" .
+
+ex:RegionalVerticalPilots a ex:Strategy ;
+    rdfs:label "Regional and Vertical Pilots" ;
+    ex:targetRegions "US, UK, Canada, Singapore, UAE, Saudi Arabia, Qatar, India, Australia" ;
+    ex:targetVerticals "Sales-driven organizations, professional services, VC and PE firms, government departments" .
+
+ex:SMECount a ex:MarketData ;
+    rdfs:label "Global SME count" ;
+    ex:total "~400 million" ;
+    ex:targetSegment "~70 million (10-250 employees)" .
+
+ex:AddressableRolesPerSME a ex:MarketData ;
+    rdfs:label "Average addressable roles per SME (senior management)";
+    ex:value "~2.5".
+
+ex:EnglishSpeakingMarkets a ex:MarketSegment ;
+    rdfs:label "Target in English Speaking Markets";
+    ex:countryData [
+        rdf:type rdf:Bag;
+        rdf:_1 [ rdf:type ex:CountryData; ex:country "United States"; ex:numberOfSMEs "33.2 million"; ex:source "U.S. Small Business Administration, 2023" ];
+        rdf:_2 [ rdf:type ex:CountryData; ex:country "United Kingdom"; ex:numberOfSMEs "5.45 million"; ex:source "UK Government, Business Population Estimates 2024" ];
+        rdf:_3 [ rdf:type ex:CountryData; ex:country "Canada"; ex:numberOfSMEs "1.29 million"; ex:source "Innovation, Science and Economic Development Canada, 2024" ];
+        rdf:_4 [ rdf:type ex:CountryData; ex:country "Australia"; ex:numberOfSMEs "2.52 million"; ex:source "Australian Bureau of Statistics, June 2023" ];
+        rdf:_5 [ rdf:type ex:CountryData; ex:country "New Zealand"; ex:numberOfSMEs "612,417"; ex:source "Statistics New Zealand, February 2024" ];
+        rdf:_6 [ rdf:type ex:CountryData; ex:country "Ireland"; ex:numberOfSMEs "389,654"; ex:source "Central Statistics Office Ireland, 2022" ];
+        rdf:_7 [ rdf:type ex:CountryData; ex:country "South Africa"; ex:numberOfSMEs "3 million"; ex:source "FinMark Trust, 2024" ];
+        rdf:_8 [ rdf:type ex:CountryData; ex:country "United Arab Emirates"; ex:numberOfSMEs "557,000"; ex:source "UAE Government Portal" ];
+        rdf:_9 [ rdf:type ex:CountryData; ex:country "Saudi Arabia"; ex:numberOfSMEs "Data not specified"; ex:source "Monsha'at SME Monitor Q4 2024" ];
+        rdf:_10 [ rdf:type ex:CountryData; ex:country "India"; ex:numberOfSMEs "73.4 million"; ex:source "Press Information Bureau, 2024" ];
+        rdf:_11 [ rdf:type ex:CountryData; ex:country "Singapore"; ex:numberOfSMEs "Data not specified"; ex:source "ADB Asia SME Monitor - Singapore" ];
+        rdf:_12 [ rdf:type ex:CountryData; ex:country "Indonesia"; ex:numberOfSMEs "66 million"; ex:source "KADIN Indonesia" ];
+        rdf:_13 [ rdf:type ex:CountryData; ex:country "Malaysia"; ex:numberOfSMEs "Data not specified"; ex:source "SME Corporation Malaysia" ];
+        rdf:_14 [ rdf:type ex:CountryData; ex:country "Hong Kong"; ex:numberOfSMEs "Data not specified"; ex:source "SCMP, 2025" ];
+        rdf:_15 [ rdf:type ex:CountryData; ex:country "Lebanon"; ex:numberOfSMEs "Data not specified"; ex:source "EU Neighbours, 2024" ];
+        rdf:_16 [ rdf:type ex:CountryData; ex:country "Jordan"; ex:numberOfSMEs "Data not specified"; ex:source "Jordan Chamber of Industry" ];
+        rdf:_17 [ rdf:type ex:CountryData; ex:country "Israel"; ex:numberOfSMEs "~540,000"; ex:source "Times of Israel, 2024" ];
+        rdf:_18 [ rdf:type ex:CountryData; ex:country "Egypt"; ex:numberOfSMEs "Data not specified"; ex:source "Ahram Online, 2024" ];
+        rdf:_19 [ rdf:type ex:CountryData; ex:country "Kenya"; ex:numberOfSMEs "Data not specified"; ex:source "FSD Kenya, 2024" ];
+        rdf:_20 [ rdf:type ex:CountryData; ex:country "Tanzania"; ex:numberOfSMEs "Over 3 million"; ex:source "TanzaniaInvest" ];
+        rdf:_21 [ rdf:type ex:CountryData; ex:country "Oman"; ex:numberOfSMEs "141,126"; ex:source "Oman News Agency, 2024" ];
+        rdf:_22 [ rdf:type ex:CountryData; ex:country "Uganda"; ex:numberOfSMEs "Data not specified"; ex:source "Ministry of Trade, Industry and Cooperatives, Uganda" ];
+        rdf:_23 [ rdf:type ex:CountryData; ex:country "Nigeria"; ex:numberOfSMEs "Data not specified"; ex:source "World Bank, 2024" ];
+        rdf:_24 [ rdf:type ex:CountryData; ex:country "Ghana"; ex:numberOfSMEs "Data not specified"; ex:source "World Bank, 2024" ];
+        rdf:_25 [ rdf:type ex:CountryData; ex:country "Mexico"; ex:numberOfSMEs "5.56 million"; ex:source "INEGI, 2024" ];
+    ] .
+
+ex:TAM a ex:MarketData ;
+    rdfs:label "Total Addressable User Base (TAM)" ;
+    ex:value "~175 million" .
+
+ex:SAM a ex:MarketData ;
+    rdfs:label "Serviceable Addressable Market (SAM)" ;
+    ex:value "$3.5 billion monthly" .
+
+ex:SOM a ex:MarketData ;
+    rdfs:label "Serviceable Obtainable Market (SOM)" ;
+    ex:value "$420 million/year" .
+
+ex:UnicornTarget a ex:Goal ;
+    rdfs:label "Unicorn Target" ;
+    ex:users "1 million" ;
+    ex:revenue "$240M/year" .
+
+ex:CustomerJourney a ex:Concept ;
+    rdfs:label "Customer Journey" ;
+    ex:phase1 [
+        rdf:type ex:Phase;
+        rdfs:label "Individual Activation";
+        ex:channelStrategy "Website download, social media, influencer advocacy, system integration partners, niche conferences";
+        ex:focus "Maximize installation-to-activation conversion, encourage data connectivity, optimize the 'aha' moment";
+        ex:successMetrics "Downloads, DAU/WAU ratios, feature usage depth, NPS"
+    ];
+    ex:phase2 [
+        rdf:type ex:Phase;
+        rdfs:label "Team Expansion";
+        ex:conversion "Solo usage to team pilot using in-app referrals, usage analytics, and shared context tooling";
+        ex:incentives "Team-based pricing, early adopter perks, feature unlocks";
+        ex:metrics "Seats per account, usage per org, referral rate, conversion velocity"
+    ];
+    ex:phase3 [
+        rdf:type ex:Phase;
+        rdfs:label "Enterprise Maturity";
+        ex:approach "Account-based selling: target client facing, tech, knowledge management, strategy ops, performance monitoring";
+        ex:differentiation "Security/compliance";
+        ex:marketingApproach "build case studies and references".
+        ex:metrics "Deal size, ARR, sales cycle length, churn rate"
+    ];
+    ex:phase4 [
+        rdf:type ex:Phase;
+        rdfs:label "Protocol Participation";
+        ex:introduction "Introduce users to token economy, trust graph concepts";
+        ex:bundling "Bundle insights with ecosystem benefits, governance roles";
+        ex:metrics "Opt-in rate, token liquidity, data utility growth"
+    ] .
+
+ex:PricingStrategy a ex:Concept ;
+    rdfs:label "Pricing Strategy";
+    ex:freemium "Always-on, privacy-respecting entry point";
+    ex:premium "$20 p/month/user depending on features, region, and billing cycle (monthly vs annual)";
+    ex:enterprise "Custom deals with SLAs, integration fees, tiered onboarding through system integrators";
+    ex:tokenDiscounts "Optional token reward mechanism to reduce cost-of-ownership for protocol-aligned contributors";
+    ex:pilots "First 6–12 months include deeply discounted cohorts for brand champions and vertical testbeds" .
+
+ex:Scalability a ex:Concept ;
+    rdfs:label "Scalability and Leverage Points";
+    ex:leveragePoints "High word-of-mouth potential from early adopters with outsized influence (e.g., Founders, CMOs, VCs), Viral - high quality video content production, Comparison videos of use cases (with and without), Local champions enable hypergrowth in key territories, Clear enterprise expansion logic tied to productivity ROI, Ecosystem effects as knowledge assets grow in the protocol, Open-source SDKs and API integrations enable third-party developers to build on top of POSITRON or connect with internal systems" .
+
+ex:RisksMitigation a ex:Concept ;
+    rdfs:label "Risks and Mitigation";
+    ex:adoptionRisk [
+        rdf:type ex:Risk;
+        rdfs:label "Adoption Risk";
+        ex:mitigation "Strong onboarding UX, early user feedback loops, guided product tours"
+    ];
+    ex:churnRisk [
+        rdf:type ex:Risk;
+        rdfs:label "Churn Risk";
+        ex:mitigation "Real-time insights, performance benchmarking, advanced alerts for inactive users"
+    ];
+    ex:privacyConcerns [
+        rdf:type ex:Risk;
+        rdfs:label "Privacy Concerns";
+        ex:mitigation "End-to-end encryption, on-device defaults, transparent opt-in pathways for any external data usage"
+    ];
+    ex:competitiveLandscape [
+        rdf:type ex:Risk;
+        rdfs:label "Competitive Landscape";
+        ex:mitigation "Emphasize differentiated stack (local compute + protocol intelligence), comparison video experience, first-mover integrations"
+    ] .
+
+ex:dubaiChamberCommerce a ex:Organization ;
+    rdfs:label "Dubai Chamber of Commerce";
+    ex:reach "557,000 registered SME members" .
+
+ex:CAC a ex:Metric ;
+  rdfs:label "Customer Acquisition Cost".
+
+ex:LTV a ex:Metric ;
+  rdfs:label "Lifetime Value".
+
+ex:FutureWork a ex:Concept;
+    rdfs:label "Future Work";
+    ex:includes "product-LTV modeling, channel-specific CAC strategies, and regional P&L frameworks".
+
+ex:POSITRON ex:hasFutureWork ex:FutureWork . #Connect Positron to future work
+
+```
+
+[GraphReviewer]: Okay, I've received the refined Turtle RDF graph. I will now compare it to the raw text in `state['raw_text']` to check for completeness and then validate the Turtle syntax.
+
+[GraphReviewer]: The Turtle syntax is invalid. There's an error message: "Bad syntax (']' expected)". It seems there's an issue with how the `ex:marketingApproach` property is defined within the `ex:CustomerJourney` -> `ex:phase3` section. The period at the end is causing the issue, and the parser seems to be expecting a closing bracket.
+
+```
+fail
+[Turtle syntax error]
+```
+[GraphBuilder]: ```turtle
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+
+ex:POSITRON a ex:Product ;
+    rdfs:comment "Privacy-first, AI-driven intelligence assistant targeting senior management, sales and marketing teams, and C-suite users in SMEs." ;
+    ex:businessModel "SaaS" ;
+    ex:monetizationStrategy "Hybrid (consumer-style entry + enterprise-grade expansion)" ;
+    ex:targetMarket "Senior management, sales and marketing teams, and C-suite users in SMEs" ;
+    ex:developedBy ex:ASIMOVProtocol .
+
+ex:ASIMOVProtocol a ex:Organization ;
+    rdfs:comment "Decentralized structured knowledge ecosystem incentivized by ASIMOV Tokens." .
+
+ex:FreemiumTier a ex:ProductTier ;
+    rdfs:label "Freemium Tier" ;
+    rdfs:comment "Entry-level product focused on high-value productivity for individual executive." ;
+    ex:features "Private data reasoning, integrations with productivity apps (email, calendar, contacts, notetakers), local NLP processing, data interrogation, data set intersection, smart summarization" ;
+    ex:platform "Desktop/laptop (MacOS, Windows, Linux)" ;
+    ex:purpose "Remove friction to initial adoption, generate fast time-to-value, create viral usage patterns" ;
+    ex:monetizationStrategy "Trojan horse for higher-tier monetization" .
+
+ex:PremiumIndividualSubscription a ex:ProductTier ;
+    rdfs:label "Premium Individual Subscription" ;
+    ex:price "$20 p/user p/month" ;
+    ex:capabilities "Multi-device sync, access to public data reasoning, CRM integrations, social graph enrichment (LinkedIn, Crunchbase)" ;
+    ex:targetUser "Executives and power users with 'recall debt'" ;
+    ex:valueProposition "Increase recall accuracy, connect different data points, with context depth, automate preparation tasks, enable inferencing" .
+
+ex:EnterpriseB2BPlans a ex:ProductTier ;
+    rdfs:label "Enterprise/B2B Plans" ;
+    ex:pricingModel "Scalable ($10-$15 p/user p/month) with volume-based tiers and SLA-bound support" ;
+    ex:organizationalRollout "Bottom-up (premium user advocate) or Top-down (strategic sales to C-suites)" ;
+    ex:targetVerticals "Finance, healthcare, law, energy" .
+
+ex:DataMonetization a ex:Feature ;
+    rdfs:label "Data Monetization" ;
+    rdfs:comment "Users opt into incentivized sharing of anonymized data for ASIMOV Protocol." ;
+    ex:incentives "Token rewards, access to new functionality" ;
+    ex:rewardToken ex:ASIMOVTokens ;
+    ex:privacyPreserved "Yes" .
+
+ex:ASIMOVTokens a ex:TokenType ;
+    rdfs:label "ASIMOV Tokens" .
+
+ex:RegionalVerticalPilots a ex:Strategy ;
+    rdfs:label "Regional and Vertical Pilots" ;
+    ex:targetRegions "US, UK, Canada, Singapore, UAE, Saudi Arabia, Qatar, India, Australia" ;
+    ex:targetVerticals "Sales-driven organizations, professional services, VC and PE firms, government departments" .
+
+ex:SMECount a ex:MarketData ;
+    rdfs:label "Global SME count" ;
+    ex:total "~400 million" ;
+    ex:targetSegment "~70 million (10-250 employees)" .
+
+ex:AddressableRolesPerSME a ex:MarketData ;
+    rdfs:label "Average addressable roles per SME (senior management)";
+    ex:value "~2.5".
+
+ex:EnglishSpeakingMarkets a ex:MarketSegment ;
+    rdfs:label "Target in English Speaking Markets";
+    ex:countryData [
+        rdf:type rdf:Bag;
+        rdf:_1 [ rdf:type ex:CountryData; ex:country "United States"; ex:numberOfSMEs "33.2 million"; ex:source "U.S. Small Business Administration, 2023" ];
+        rdf:_2 [ rdf:type ex:CountryData; ex:country "United Kingdom"; ex:numberOfSMEs "5.45 million"; ex:source "UK Government, Business Population Estimates 2024" ];
+        rdf:_3 [ rdf:type ex:CountryData; ex:country "Canada"; ex:numberOfSMEs "1.29 million"; ex:source "Innovation, Science and Economic Development Canada, 2024" ];
+        rdf:_4 [ rdf:type ex:CountryData; ex:country "Australia"; ex:numberOfSMEs "2.52 million"; ex:source "Australian Bureau of Statistics, June 2023" ];
+        rdf:_5 [ rdf:type ex:CountryData; ex:country "New Zealand"; ex:numberOfSMEs "612,417"; ex:source "Statistics New Zealand, February 2024" ];
+        rdf:_6 [ rdf:type ex:CountryData; ex:country "Ireland"; ex:numberOfSMEs "389,654"; ex:source "Central Statistics Office Ireland, 2022" ];
+        rdf:_7 [ rdf:type ex:CountryData; ex:country "South Africa"; ex:numberOfSMEs "3 million"; ex:source "FinMark Trust, 2024" ];
+        rdf:_8 [ rdf:type ex:CountryData; ex:country "United Arab Emirates"; ex:numberOfSMEs "557,000"; ex:source "UAE Government Portal" ];
+        rdf:_9 [ rdf:type ex:CountryData; ex:country "Saudi Arabia"; ex:numberOfSMEs "Data not specified"; ex:source "Monsha'at SME Monitor Q4 2024" ];
+        rdf:_10 [ rdf:type ex:CountryData; ex:country "India"; ex:numberOfSMEs "73.4 million"; ex:source "Press Information Bureau, 2024" ];
+        rdf:_11 [ rdf:type ex:CountryData; ex:country "Singapore"; ex:numberOfSMEs "Data not specified"; ex:source "ADB Asia SME Monitor - Singapore" ];
+        rdf:_12 [ rdf:type ex:CountryData; ex:country "Indonesia"; ex:numberOfSMEs "66 million"; ex:source "KADIN Indonesia" ];
+        rdf:_13 [ rdf:type ex:CountryData; ex:country "Malaysia"; ex:numberOfSMEs "Data not specified"; ex:source "SME Corporation Malaysia" ];
+        rdf:_14 [ rdf:type ex:CountryData; ex:country "Hong Kong"; ex:numberOfSMEs "Data not specified"; ex:source "SCMP, 2025" ];
+        rdf:_15 [ rdf:type ex:CountryData; ex:country "Lebanon"; ex:numberOfSMEs "Data not specified"; ex:source "EU Neighbours, 2024" ];
+        rdf:_16 [ rdf:type ex:CountryData; ex:country "Jordan"; ex:numberOfSMEs "Data not specified"; ex:source "Jordan Chamber of Industry" ];
+        rdf:_17 [ rdf:type ex:CountryData; ex:country "Israel"; ex:numberOfSMEs "~540,000"; ex:source "Times of Israel, 2024" ];
+        rdf:_18 [ rdf:type ex:CountryData; ex:country "Egypt"; ex:numberOfSMEs "Data not specified"; ex:source "Ahram Online, 2024" ];
+        rdf:_19 [ rdf:type ex:CountryData; ex:country "Kenya"; ex:numberOfSMEs "Data not specified"; ex:source "FSD Kenya, 2024" ];
+        rdf:_20 [ rdf:type ex:CountryData; ex:country "Tanzania"; ex:numberOfSMEs "Over 3 million"; ex:source "TanzaniaInvest" ];
+        rdf:_21 [ rdf:type ex:CountryData; ex:country "Oman"; ex:numberOfSMEs "141,126"; ex:source "Oman News Agency, 2024" ];
+        rdf:_22 [ rdf:type ex:CountryData; ex:country "Uganda"; ex:numberOfSMEs "Data not specified"; ex:source "Ministry of Trade, Industry and Cooperatives, Uganda" ];
+        rdf:_23 [ rdf:type ex:CountryData; ex:country "Nigeria"; ex:numberOfSMEs "Data not specified"; ex:source "World Bank, 2024" ];
+        rdf:_24 [ rdf:type ex:CountryData; ex:country "Ghana"; ex:numberOfSMEs "Data not specified"; ex:source "World Bank, 2024" ];
+        rdf:_25 [ rdf:type ex:CountryData; ex:country "Mexico"; ex:numberOfSMEs "5.56 million"; ex:source "INEGI, 2024" ];
+    ] .
+
+ex:TAM a ex:MarketData ;
+    rdfs:label "Total Addressable User Base (TAM)" ;
+    ex:value "~175 million" .
+
+ex:SAM a ex:MarketData ;
+    rdfs:label "Serviceable Addressable Market (SAM)" ;
+    ex:value "$3.5 billion monthly" .
+
+ex:SOM a ex:MarketData ;
+    rdfs:label "Serviceable Obtainable Market (SOM)" ;
+    ex:value "$420 million/year" .
+
+ex:UnicornTarget a ex:Goal ;
+    rdfs:label "Unicorn Target" ;
+    ex:users "1 million" ;
+    ex:revenue "$240M/year" .
+
+ex:CustomerJourney a ex:Concept ;
+    rdfs:label "Customer Journey" ;
+    ex:phase1 [
+        rdf:type ex:Phase;
+        rdfs:label "Individual Activation";
+        ex:channelStrategy "Website download, social media, influencer advocacy, system integration partners, niche conferences";
+        ex:focus "Maximize installation-to-activation conversion, encourage data connectivity, optimize the 'aha' moment";
+        ex:successMetrics "Downloads, DAU/WAU ratios, feature usage depth, NPS"
+    ];
+    ex:phase2 [
+        rdf:type ex:Phase;
+        rdfs:label "Team Expansion";
+        ex:conversion "Solo usage to team pilot using in-app referrals, usage analytics, and shared context tooling";
+        ex:incentives "Team-based pricing, early adopter perks, feature unlocks";
+        ex:metrics "Seats per account, usage per org, referral rate, conversion velocity"
+    ];
+    ex:phase3 [
+        rdf:type ex:Phase;
+        rdfs:label "Enterprise Maturity";
+        ex:approach "Account-based selling: target client facing, tech, knowledge management, strategy ops, performance monitoring";
+        ex:differentiation "Security/compliance" ;
+        ex:marketingApproach "build case studies and references";
+        ex:metrics "Deal size, ARR, sales cycle length, churn rate"
+    ];
+    ex:phase4 [
+        rdf:type ex:Phase;
+        rdfs:label "Protocol Participation";
+        ex:introduction "Introduce users to token economy, trust graph concepts";
+        ex:bundling "Bundle insights with ecosystem benefits, governance roles";
+        ex:metrics "Opt-in rate, token liquidity, data utility growth"
+    ] .
+
+ex:PricingStrategy a ex:Concept ;
+    rdfs:label "Pricing Strategy";
+    ex:freemium "Always-on, privacy-respecting entry point";
+    ex:premium "$20 p/month/user depending on features, region, and billing cycle (monthly vs annual)";
+    ex:enterprise "Custom deals with SLAs, integration fees, tiered onboarding through system integrators";
+    ex:tokenDiscounts "Optional token reward mechanism to reduce cost-of-ownership for protocol-aligned contributors";
+    ex:pilots "First 6–12 months include deeply discounted cohorts for brand champions and vertical testbeds" .
+
+ex:Scalability a ex:Concept ;
+    rdfs:label "Scalability and Leverage Points";
+    ex:leveragePoints "High word-of-mouth potential from early adopters with outsized influence (e.g., Founders, CMOs, VCs), Viral - high quality video content production, Comparison videos of use cases (with and without), Local champions enable hypergrowth in key territories, Clear enterprise expansion logic tied to productivity ROI, Ecosystem effects as knowledge assets grow in the protocol, Open-source SDKs and API integrations enable third-party developers to build on top of POSITRON or connect with internal systems" .
+
+ex:RisksMitigation a ex:Concept ;
+    rdfs:label "Risks and Mitigation";
+    ex:adoptionRisk [
+        rdf:type ex:Risk;
+        rdfs:label "Adoption Risk";
+        ex:mitigation "Strong onboarding UX, early user feedback loops, guided product tours"
+    ];
+    ex:churnRisk [
+        rdf:type ex:Risk;
+        rdfs:label "Churn Risk";
+        ex:mitigation "Real-time insights, performance benchmarking, advanced alerts for inactive users"
+    ];
+    ex:privacyConcerns [
+        rdf:type ex:Risk;
+        rdfs:label "Privacy Concerns";
+        ex:mitigation "End-to-end encryption, on-device defaults, transparent opt-in pathways for any external data usage"
+    ];
+    ex:competitiveLandscape [
+        rdf:type ex:Risk;
+        rdfs:label "Competitive Landscape";
+        ex:mitigation "Emphasize differentiated stack (local compute + protocol intelligence), comparison video experience, first-mover integrations"
+    ] .
+
+ex:dubaiChamberCommerce a ex:Organization ;
+    rdfs:label "Dubai Chamber of Commerce";
+    ex:reach "557,000 registered SME members" .
+
+ex:CAC a ex:Metric ;
+  rdfs:label "Customer Acquisition Cost".
+
+ex:LTV a ex:Metric ;
+  rdfs:label "Lifetime Value".
+
+ex:FutureWork a ex:Concept;
+    rdfs:label "Future Work";
+    ex:includes "product-LTV modeling, channel-specific CAC strategies, and regional P&L frameworks" .
+
+ex:POSITRON ex:hasFutureWork ex:FutureWork .
+```
+[GraphReviewer]: The Turtle syntax is valid.
+
+Now, let me compare the generated graph with the raw text to ensure everything is captured.
+
+I have carefully reviewed the raw text and the generated graph, and I believe everything is now captured accurately. All the entities, relationships, and key information, including the future work and the differentiation in the Enterprise Maturity phase, are represented in the graph.
+
+```
+pass
+```
+[user]: 
