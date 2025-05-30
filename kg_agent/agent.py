@@ -3,22 +3,34 @@ Iterative knowledge-graph extractor with ADK
 Run with:  adk run kg_agent          # CLI
            adk web                   # Dev UI in the browser
 """
+import sys
+import os
+import json
+import re
 
-from google.adk.agents import LlmAgent, LoopAgent, SequentialAgent, BaseAgent
+from google.adk.agents import LlmAgent, LoopAgent, SequentialAgent, ParallelAgent, BaseAgent
 from google.adk.tools.agent_tool import AgentTool
 from google.adk.events import Event, EventActions
 from google.adk.agents.invocation_context import InvocationContext
+from google.adk.tools import ToolContext
 from typing import AsyncGenerator
 
 from rdflib import Graph
 
-import sys
-import os
-
 import logging
 logger = logging.getLogger(__name__)
 
-import json
+from youtube_transcript_api import (
+    YouTubeTranscriptApi,
+    NoTranscriptFound,
+    TranscriptsDisabled,
+    VideoUnavailable
+)
+
+YT_ID_RE = re.compile(
+    r"(?:youtube\.com/watch\?v=|youtu\.be/|^)(?P<id>[A-Za-z0-9_-]{11})(?:[&?].*)?$",
+    re.IGNORECASE,
+)
 
 def read_file_content(file_path: str) -> dict:
     """
@@ -37,6 +49,50 @@ def read_file_content(file_path: str) -> dict:
             "length": len(content),
             "raw_text": content}
 
+def download_youtube_transcript(video_or_url: str) -> dict:
+    """
+    Fetch the YouTube transcript for `video_or_url` and expose it
+    in the agent state. Nothing is written to disk.
+
+    Returns:
+        {
+            "status": "success" | "error",
+            "video_id": "<id>",
+            "transcript": [ { "text": ..., "start": ..., "duration": ... }, ... ],
+            "message": "... if error ..."
+        }
+    """
+    m = YT_ID_RE.search(video_or_url.strip())
+    if not m:
+        return {"status": "error", "message": "Could not parse YouTube video ID."}
+
+    vid = m.group("id")
+
+    prefer_languages = ("en", "en-US", "en-GB")
+
+    try:
+        # Try manual captions first, fall back to auto-generated.
+        tlist = YouTubeTranscriptApi.list_transcripts(vid)
+        try:
+            transcript = tlist.find_manually_created_transcript(prefer_languages).fetch()
+        except NoTranscriptFound:
+            transcript = tlist.find_generated_transcript(prefer_languages).fetch()
+
+    except (NoTranscriptFound, TranscriptsDisabled):
+        return {"status": "error", "video_id": vid,
+                "message": "Transcript not available or disabled."}
+    except VideoUnavailable:
+        return {"status": "error", "video_id": vid,
+                "message": "Video unavailable."}
+    except Exception as exc:
+        return {"status": "error", "video_id": vid,
+                "message": f"Unexpected error: {exc}"}
+
+
+    return {"status": "success", 
+            "video_id": vid, 
+            "transcript": transcript}
+
 def validate_turtle(turtle_string: str) -> dict:
     """
     Validates if a string is valid Turtle RDF syntax.
@@ -54,7 +110,7 @@ def validate_turtle(turtle_string: str) -> dict:
         g = Graph()
         # Remove the fence prefix if it exists
         if turtle_string.startswith("```turtle"):
-            turtle_string = turtle_string.replace("```turtle", "").replace
+            turtle_string = turtle_string.replace("```turtle", "").replace("```", "")
         g.parse(data=turtle_string, format='turtle')
         output = g.serialize(format='turtle')
         
@@ -66,23 +122,99 @@ def validate_turtle(turtle_string: str) -> dict:
         # Return the error message
         return {"status": "error", 
                 "error_message": str(e)}
-    
+
+def store_knowledge_graph(knowledge_graph: str, tool_context: "ToolContext", graph_id: str, **_) -> dict:
+    """
+    Store the provided knowledge graph in the tool context state by its ID.
+
+    Args:
+        knowledge_graph: The Turtle-formatted knowledge graph string to store.
+        tool_context: The context object containing the state.
+        graph_id: The key in the state where the knowledge graph will be stored.
+
+    Returns:
+        A dictionary indicating the status of the operation.
+    """
+    tool_context.state[graph_id] = knowledge_graph
+    return {"status": "saved"}
+
+def load_knowledge_graph(tool_context: ToolContext, graph_id: str, **_) -> dict:
+    """
+    Load the knowledge graph from the state by its ID.
+
+    Args:
+        graph_id: The key in the state where the knowledge graph is stored.
+
+    Returns:
+        A dictionary with the knowledge graph in Turtle format.
+    """
+    graph = tool_context.state.get(graph_id, "")
+    if not graph:
+        return {"status": "error", "message": f"No knowledge graph found in state for id '{graph_id}'."}
+
+    return {"status": "success", "knowledge_graph": graph}
 # ───────────────────────── 1. LLM agents ──────────────────────────
 file_loader = LlmAgent(
     name="TextLoader",
-    model="gemini-2.0-flash",  # or any model ID you've configured
-    instruction=(
-        "You are a text loader."
-        "Use the read_file_content tool to read the content of a file. "
-        "store the content in state['raw_text']."
-        "Report the length of the text and the file path in the output."
-    ),
+    model="gemini-2.0-flash-lite",  # or any model ID you've configured
+    instruction="""
+        You are a text loader.
+        Use the following tools to load in text:
+            - read_file_content tool to read the content of a file.
+            - download_youtube_transcript tool to fetch the transcript of a YouTube video.
+        store the content in state['raw_text'].
+        Report the length of the text and the file path / url in the output.
+    """,
     output_key="raw_text",
-    tools=[read_file_content],
+    tools=[read_file_content, download_youtube_transcript],
 )
 
-graph_builder = LlmAgent(
-    name="GraphBuilder",
+graph_builder1 = LlmAgent(
+    name="GraphBuilder1",
+    model="gemini-2.0-flash",          # or any model ID you've configured
+    instruction=(
+        "You are an RDF engineer. "
+        "Read state['raw_text'] and create **or refine** a Turtle knowledge "
+        "graph covering every entity and relationship mentioned. "
+        "If state['missing_items'] exists, be sure to add them. "
+        "Output ONLY the Turtle RDF graph, nothing else."    
+        ),
+    output_key="knowledge_graph1",
+    tools=[store_knowledge_graph],
+)
+
+graph_reviewer1 = LlmAgent(
+    name="GraphReviewer1",
+    model="gemini-2.0-flash",
+    instruction="""
+         1. **Accessing Required Data:**
+        - The raw text is available in the state under the key 'raw_text'.
+        - The knowledge graph is available via the `load_knowledge_graph` tool with key `knowledge_graph1`.
+
+        2. **Validation Process:**
+        - Compare the content of the raw text with the knowledge graph.
+        - Ensure that every entity and relationship mentioned in the raw text is accurately represented in the knowledge graph.
+
+        3. **If the Knowledge Graph is Complete:**
+        - Utilize the `validate_turtle` tool to check the syntax of the Turtle-formatted knowledge graph.
+            - If the syntax is **invalid**, output the error message generated by the `validate_turtle` tool.
+            - If the syntax is **valid**:
+            - Output the single word: `pass`.
+
+        4. **If the Knowledge Graph is Incomplete or Requires Improvements:**
+        - Output the word `fail`, followed by a list detailing the missing entities, relationships, or suggested improvements.
+
+        5. **Output Formatting:**
+        - Your output must begin with either `pass` or `fail`, without any additional formatting such as markdown fences.
+        
+        Note: The knowledge graph from GraphBuilder1 will be available in the state. If you cannot find it, it may not have been generated yet.
+    """,
+    tools=[validate_turtle, load_knowledge_graph],
+    output_key="graph_status1",
+)
+
+graph_builder2 = LlmAgent(
+    name="GraphBuilder2",
     model="gemini-2.0-flash",          # or any model ID you've configured
     instruction=(
         "You are an RDF engineer. "
@@ -91,31 +223,73 @@ graph_builder = LlmAgent(
         "If state['missing_items'] exists, be sure to add them. "
         "Output ONLY the Turtle RDF graph, nothing else."
     ),
-    output_key="knowledge_graph",
+    output_key="knowledge_graph2",
+    tools=[store_knowledge_graph],
 )
 
-graph_reviewer = LlmAgent(
-    name="GraphReviewer",
+graph_reviewer2 = LlmAgent(
+    name="GraphReviewer2",
     model="gemini-2.0-flash",
     instruction="""
-        Compare state['raw_text'] with state['knowledge_graph'].
-        Check if every entity and relationship from the raw_text is present in the knowledge graph.
-        If everything is captured, output the single word 'pass'.
-        If something is missing, output 'fail', followed by a list of missing items.
-        If everything is captured then use the validate_turtle tool to check the Turtle syntax.
-        If the Turtle syntax is invalid put the error message in the output.
-        If the Turtle syntax is valid put the output from the validate_turtle tool in state['knowledge_graph'].
+        1. **Accessing Required Data:**
+        - The raw text is available in the state under the key `raw_text`.
+        - The knowledge graph is available via the `load_knowledge_graph` tool with key `knowledge_graph2`.
+
+        2. **Validation Process:**
+        - Compare the content of the raw text with the knowledge graph.
+        - Ensure that every entity and relationship mentioned in the raw text is accurately represented in the knowledge graph.
+
+        3. **If the Knowledge Graph is Complete:**
+        - Utilize the `validate_turtle` tool to check the syntax of the Turtle-formatted knowledge graph.
+            - If the syntax is **invalid**, output the error message generated by the `validate_turtle` tool.
+            - If the syntax is **valid**:
+            - Output the single word: `pass`.
+
+        4. **If the Knowledge Graph is Incomplete or Requires Improvements:**
+        - Output the word `fail`, followed by a list detailing the missing entities, relationships, or suggested improvements.
+
+        5. **Output Formatting:**
+        - Your output must begin with either `pass` or `fail`, without any additional formatting such as markdown fences.
+        
+        Note: The knowledge graph from GraphBuilder2 will be available in the state. If you cannot find it, it may not have been generated yet.
     """,
-    tools=[validate_turtle],
-    output_key="graph_status",
+    tools=[validate_turtle, load_knowledge_graph],
+    output_key="graph_status2",
+)
+
+merger_agent = LlmAgent(
+     name="SynthesisAgent",
+     model="gemini-2.0-flash",  # Or potentially a more powerful model if needed for synthesis
+     instruction="""
+        You are an AI Assistant tasked with merging two knowledge graphs.
+        Your job is to take the Turtle RDF graphs from KGRefinementLoop1 and KGRefinementLoop2 in the state,
+        and combine them into a single Turtle RDF graph.
+        Ensure that all entities and relationships from both graphs are included.
+        Output the combined Turtle RDF graph only, without any additional text or markdown fences.
+        If there are any conflicts or duplicates, resolve them by keeping the most complete or relevant information.
+        If you cannot merge them, output 'fail' with an explanation.
+        """,
+     output_key="merged_knowledge_graph",
 )
 
 # ──────────────────────── 2. Stop checker ─────────────────────────
-class StopIfComplete(BaseAgent):
+class StopIfComplete1(BaseAgent):
     async def _run_async_impl(
         self, ctx: InvocationContext
     ) -> AsyncGenerator[Event, None]:
-        status = ctx.session.state.get("graph_status", "fail").strip().lower()
+        status = ctx.session.state.get("graph_status1", "fail").strip().lower()
+        should_stop = status.startswith("pass")
+        
+        yield Event(
+            author=self.name,
+            actions=EventActions(escalate=should_stop),  # stop loop when pass
+        )
+        
+class StopIfComplete2(BaseAgent):
+    async def _run_async_impl(
+        self, ctx: InvocationContext
+    ) -> AsyncGenerator[Event, None]:
+        status = ctx.session.state.get("graph_status2", "fail").strip().lower()
         should_stop = status.startswith("pass")
         
         yield Event(
@@ -124,20 +298,38 @@ class StopIfComplete(BaseAgent):
         )
 
 # ──────────────────────── 3. Loop agent ───────────────────────────
-kg_refinement_loop = LoopAgent(
-    name="KGRefinementLoop",
+kg_refinement_loop1 = LoopAgent(
+    name="KGRefinementLoop1",
     max_iterations=5,  # bump if your text is huge
     sub_agents=[
-        graph_builder,
-        graph_reviewer,
-        StopIfComplete(name="StopChecker"),
+        graph_builder1,
+        graph_reviewer1,
+        StopIfComplete1(name="StopChecker1"),
+    ],
+)
+
+kg_refinement_loop2 = LoopAgent(
+    name="KGRefinementLoop2",
+    max_iterations=5,  # bump if your text is huge
+    sub_agents=[
+        graph_builder2,
+        graph_reviewer2,
+        StopIfComplete2(name="StopChecker2"),
     ],
 )
 
 # ──────────────────────── 4. Root pipeline ────────────────────────
+kg_refinement_loop_parallel = ParallelAgent(
+    name="KGRefinementLoopParallel",
+    sub_agents=[
+        kg_refinement_loop1,
+        kg_refinement_loop2,
+    ],
+)
+
 kg_pipeline = SequentialAgent(
     name="KnowledgeGraphPipeline",
-    sub_agents=[file_loader, kg_refinement_loop],
+    sub_agents=[file_loader, kg_refinement_loop_parallel, merger_agent],
 )
 
 # ADK discovers this when you run `adk run kg_agent`
