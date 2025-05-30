@@ -256,50 +256,41 @@ merger_agent = LlmAgent(
      instruction=MERGE_PROMPT,
      output_key="merged_knowledge_graph",
 )
+from pydantic import Field
 
 # ──────────────────────── 2. Stop checker ─────────────────────────
-class StopIfComplete1(BaseAgent):
-    async def _run_async_impl(
-        self, ctx: InvocationContext
-    ) -> AsyncGenerator[Event, None]:
-        status = ctx.session.state.get("graph_status1", "fail").strip().lower()
-        should_stop = status.startswith("pass")
-        
-        yield Event(
-            author=self.name,
-            actions=EventActions(escalate=should_stop),  # stop loop when pass
-        )
-        
-class StopIfComplete2(BaseAgent):
-    async def _run_async_impl(
-        self, ctx: InvocationContext
-    ) -> AsyncGenerator[Event, None]:
-        status = ctx.session.state.get("graph_status2", "fail").strip().lower()
-        should_stop = status.startswith("pass")
-        
-        yield Event(
-            author=self.name,
-            actions=EventActions(escalate=should_stop),  # stop loop when pass
-        )
+class StopIfComplete(BaseAgent):
+    status_key: str = Field(...)
 
+    async def _run_async_impl(
+        self, ctx: InvocationContext
+    ) -> AsyncGenerator[Event, None]:
+        status = ctx.session.state.get(self.status_key, "fail").strip().lower()
+        should_stop = status.startswith("pass")
+
+        yield Event(
+            author=self.name,
+            actions=EventActions(escalate=should_stop),
+        )
+        
 # ──────────────────────── 3. Loop agent ───────────────────────────
 kg_refinement_loop1 = LoopAgent(
     name="KGRefinementLoop1",
-    max_iterations=5,  # bump if your text is huge
+    max_iterations=10,
     sub_agents=[
         graph_builder1,
         graph_reviewer1,
-        StopIfComplete1(name="StopChecker1"),
+        StopIfComplete(name="StopChecker1", status_key="graph_status1"),
     ],
 )
 
 kg_refinement_loop2 = LoopAgent(
     name="KGRefinementLoop2",
-    max_iterations=5,  # bump if your text is huge
+    max_iterations=10,
     sub_agents=[
         graph_builder2,
         graph_reviewer2,
-        StopIfComplete2(name="StopChecker2"),
+        StopIfComplete(name="StopChecker2", status_key="graph_status2"),
     ],
 )
 
