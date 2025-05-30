@@ -8,6 +8,11 @@ from google.adk.sessions import InMemorySessionService
 from google.genai import types
 import asyncio
 
+# Import visualisation libraries
+from rdflib import Graph, URIRef, Literal
+import networkx as nx
+from pyvis.network import Network
+
 # Tool for loading text from file
 def load_from_file(filename: str, tool_context: ToolContext) -> dict:
     """Loads text content from a file and stores it in the session state.
@@ -143,6 +148,105 @@ def save_to_file(filename: str, tool_context: ToolContext) -> dict:
             "error_message": f"Failed to save file: {str(e)}"
         }
 
+# Tool for visualising RDF graph
+def visualize_rdf_graph(tool_context: ToolContext) -> dict:
+    """Visualizes the RDF graph stored in session state using NetworkX and Pyvis."""
+
+    try:
+        rdf_content = tool_context.state.get("rdf_graph", None)
+        if not rdf_content:
+            return {"status": "error", "error_message": "No RDF graph found in state"}
+        
+        # Helper functions
+        def get_label(node):
+            if isinstance(node, URIRef):
+                return str(node).split('#')[-1].split('/')[-1].replace('_', ' ')
+            elif isinstance(node, Literal):
+                return str(node)
+            else:
+                return str(node)
+
+        def get_node_color(degree):
+            if degree > 10:
+                return '#ff6b6b'  # Red for highly connected nodes
+            elif degree > 5:
+                return "#fceb02"  # Yellow for moderately connected
+            elif degree > 2:
+                return '#45b7d1'  # Blue for somewhat connected
+            else:
+                return '#96ceb4'  # Green for less connected 
+
+        print("Loading RDF data...")
+        g = Graph()
+        g.parse(data=rdf_content, format="turtle")
+        print(f"Successfully loaded {len(g)} triples")
+            
+        print("Building NetworkX graph...")
+        G = nx.DiGraph()
+
+        # Build the graph
+        for s, p, o in g:
+            subject_label = get_label(s)
+            predicate_label = get_label(p)
+            object_label = get_label(o)
+            G.add_edge(subject_label, object_label, label=predicate_label)
+
+        print(f"Created graph with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges")
+        print("Creating interactive visualization...")
+        net = Network(height="800px", width="100%", directed=True)
+
+        net.set_options("""
+        var options = {
+             "physics": {
+             "enabled": true,
+             "barnesHut": {
+             "gravitationalConstant": -8000,
+             "centralGravity": 0.3,
+             "springLength": 95,
+             "springConstant": 0.04,
+             "damping": 0.09
+             }
+        }
+        }
+        """)
+
+        # Add nodes
+        for node in G.nodes():
+            degree = G.degree(node)
+            size = max(10, min(30, degree * 3))
+            color = get_node_color(degree)
+            hover_info = f"{node}\\nConnections: {degree}"
+
+            net.add_node(node, label=node, size=size, color=color, title=hover_info)
+
+        # Add edges
+        for src, dst, data in G.edges(data=True):
+            net.add_edge(src, dst, label=data['label'],
+                         title=f"{data['label']}: {src} → {dst}")
+
+        # Generate filename
+        source_filename = tool_context.state.get("source_filename", "knowledge_graph")
+        base_name = os.path.splitext(os.path.basename(source_filename))[0]
+        output_file = f"interactive_{base_name}_graph.html"
+
+        # Save the file 
+        net.show(output_file)
+
+        if os.path.exists(output_file):
+            tool_context.state["visualization_filename"] = output_file
+            return {
+                "status": "success",
+                "message": f"Interactive visualization saved as: {output_file}",
+                "filename": output_file,
+                "nodes": G.number_of_nodes(),
+                "edges": G.number_of_edges()
+            }
+        else:
+            return {"status": "error", "error_message": f"HTML file was not created"}
+
+    except Exception as e:
+        return {"status": "error", "error_message": f"Failed to create visualization: {str(e)}"}
+
 # Agent 1: Text Loader
 text_loader_agent = Agent(
     name="text_loader",
@@ -232,40 +336,50 @@ rdf_archiver_agent = Agent(
     output_key="archive_summary"
 )
 
+#Agent 4: RDF Visualizer
+visualization_agent = Agent(
+    name="visualizer",
+    model="gemini-2.0-flash",
+    description="Creates interactive HTML visualization from RDF graph.",
+    instruction="""
+    Create an interactive HTML visualization from the RDF from RDF Arhiver.
+    Use create_visualization tool to generate the HTML file.
+    The visualization will show nodes colored by connection count and interactive tooltips.
+    """,
+    tools=[visualize_rdf_graph],
+    output_key="visualization_summary"
+)
+
 # Create the sequential multi-agent system
 text_to_rdf_system = SequentialAgent(
     name="text_to_rdf_knowledge_graph_system",
     sub_agents=[
         text_loader_agent,
         knowledge_graph_converter,
-        rdf_archiver_agent
+        rdf_archiver_agent,
+        visualization_agent
     ]
 )
 
-# Helper function to run the system
-async def convert_text_to_rdf(input_filename: str, output_filename: Optional[str] = None):
-    """
-    Converts a text file to an RDF knowledge graph in Turtle format.
-    
-    Args:
-        input_filename: Path to the input text file
-        output_filename: Optional path for the output Turtle file
-    """
-    # Set up session and runner
+# Define required constants for session creation
+APP_NAME = "TextToRDFApp"
+USER_ID = "default_user"
+SESSION_ID = "default_session"
+
+# Helper function to run the system (changed the functio to match the new system)
+async def convert_and_visualize(input_filename: str, output_ttl: Optional[str] = None):
+    """Convert text to RDF and create visualization."""
     session_service = InMemorySessionService()
-    APP_NAME = "text_to_rdf_app"
-    USER_ID = "user_001"
-    SESSION_ID = f"session_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
-    
     session = await session_service.create_session(
         app_name=APP_NAME,
         user_id=USER_ID,
         session_id=SESSION_ID
+    
     )
     
     # Store filenames in initial state
-    if output_filename:
-        session.state["requested_output_filename"] = output_filename
+    if output_ttl:
+        session.state["requested_output_filename"] = output_ttl
     
     runner = Runner(
         agent=text_to_rdf_system,
@@ -280,8 +394,8 @@ async def convert_text_to_rdf(input_filename: str, output_filename: Optional[str
     
     print(f"Starting text to RDF conversion...")
     print(f"Input file: {input_filename}")
-    if output_filename:
-        print(f"Output file: {output_filename}")
+    if output_ttl:
+        print(f"Output file: {output_ttl}")
     print("-" * 50)
     
     # Process the request
@@ -303,6 +417,9 @@ async def convert_text_to_rdf(input_filename: str, output_filename: Optional[str
     final_state = session.state
     if "output_filename" in final_state:
         print(f"Output saved to: {final_state['output_filename']}")
+    if "visualization_filename" in final_state:
+        print(f"HTML visualization saved to: {final_state['visualization_filename']}")
+        print(f"Open {final_state['visualization_filename']} in your browser to view the interactive graph!")
     if "rdf_graph" in final_state:
         print(f"Graph preview:\n{final_state['rdf_graph'][:500]}...")
 
@@ -329,4 +446,4 @@ if __name__ == "__main__":
     print("Created sample_google.txt for demonstration")
     print("\nTo run the conversion:")
     
-    asyncio.run(convert_text_to_rdf('sample_google.txt', 'google_knowledge_graph.ttl'))
+    asyncio.run(convert_and_visualize('sample_google.txt', 'google_knowledge_graph.ttl'))
