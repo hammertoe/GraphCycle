@@ -2,6 +2,8 @@
 
 GraphCycle is an experimental autonomous agent built using the Google Agent Development Kit (ADK). It is designed to extract, refine, and organize knowledge from unstructured data (text files or YouTube video transcripts) into RDF knowledge graphs in Turtle format. The agent employs an iterative, parallel processing approach to build and review knowledge graphs, culminating in a merged, comprehensive graph.
 
+![Agent Structure](_images/agent_structure.png)
+
 ## Features
 
 *   **Autonomous Knowledge Extraction:** Leverages the Google ADK for autonomous operation.
