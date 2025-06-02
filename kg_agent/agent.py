@@ -15,6 +15,8 @@ from google.adk.agents.invocation_context import InvocationContext
 from google.adk.tools import ToolContext
 from typing import AsyncGenerator
 
+from google.genai import types
+
 from rdflib import Graph
 
 import logging
@@ -26,6 +28,8 @@ from youtube_transcript_api import (
     TranscriptsDisabled,
     VideoUnavailable
 )
+from youtube_transcript_api.formatters import WebVTTFormatter
+
 
 YT_ID_RE = re.compile(
     r"(?:youtube\.com/watch\?v=|youtu\.be/|^)(?P<id>[A-Za-z0-9_-]{11})(?:[&?].*)?$",
@@ -125,15 +129,10 @@ def download_youtube_transcript(video_or_url: str) -> dict:
     vid = m.group("id")
 
     prefer_languages = ("en", "en-US", "en-GB")
-
     try:
-        # Try manual captions first, fall back to auto-generated.
-        tlist = YouTubeTranscriptApi.list_transcripts(vid)
-        try:
-            transcript = tlist.find_manually_created_transcript(prefer_languages).fetch()
-        except NoTranscriptFound:
-            transcript = tlist.find_generated_transcript(prefer_languages).fetch()
-
+        transcript = YouTubeTranscriptApi().fetch(vid, languages=prefer_languages)
+        formatter = WebVTTFormatter()
+        transcript = formatter.format_transcript(transcript)
     except (NoTranscriptFound, TranscriptsDisabled):
         return {"status": "error", "video_id": vid,
                 "message": "Transcript not available or disabled."}
@@ -221,8 +220,10 @@ file_loader = LlmAgent(
 graph_builder1 = LlmAgent(
     name="GraphBuilder1",
     model=LLM_MODEL1,
-    instruction=GENERATE_KG_PROMPT,
-    output_key="knowledge_graph1",
+    generate_content_config=types.GenerateContentConfig(
+        temperature=0.2
+    ),
+    instruction=GENERATE_KG_PROMPT.format(knowledge_graph_key="knowledge_graph1"),
     tools=[store_knowledge_graph],
 )
 
@@ -231,14 +232,15 @@ graph_reviewer1 = LlmAgent(
     model=LLM_MODEL2,
     instruction=REVIEW_PROMPT.format(knowledge_graph_key="knowledge_graph1"),
     tools=[validate_turtle, load_knowledge_graph],
-    output_key="graph_status1",
 )
 
 graph_builder2 = LlmAgent(
     name="GraphBuilder2",
     model=LLM_MODEL2,
-    instruction=GENERATE_KG_PROMPT,
-    output_key="knowledge_graph2",
+    generate_content_config=types.GenerateContentConfig(
+        temperature=0.2
+    ),
+    instruction=GENERATE_KG_PROMPT.format(knowledge_graph_key="knowledge_graph2"),
     tools=[store_knowledge_graph],
 )
 
@@ -247,7 +249,6 @@ graph_reviewer2 = LlmAgent(
     model=LLM_MODEL1,
     instruction=REVIEW_PROMPT.format(knowledge_graph_key="knowledge_graph2"),
     tools=[validate_turtle, load_knowledge_graph],
-    output_key="graph_status2",
 )
 
 merger_agent = LlmAgent(
@@ -276,7 +277,7 @@ class StopIfComplete(BaseAgent):
 # ──────────────────────── 3. Loop agent ───────────────────────────
 kg_refinement_loop1 = LoopAgent(
     name="KGRefinementLoop1",
-    max_iterations=10,
+    max_iterations=5,
     sub_agents=[
         graph_builder1,
         graph_reviewer1,
@@ -286,7 +287,7 @@ kg_refinement_loop1 = LoopAgent(
 
 kg_refinement_loop2 = LoopAgent(
     name="KGRefinementLoop2",
-    max_iterations=10,
+    max_iterations=5,
     sub_agents=[
         graph_builder2,
         graph_reviewer2,
