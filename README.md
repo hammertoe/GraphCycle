@@ -1,4 +1,3 @@
-```md
 # GraphCycle
 
 GraphCycle is an experimental autonomous agent built using the Google Agent Development Kit (ADK). It is designed to extract, refine, and organize knowledge from unstructured data (text files or YouTube video transcripts) into RDF knowledge graphs in Turtle format. The agent employs an iterative, parallel processing approach to build and review knowledge graphs, culminating in a merged, comprehensive graph.
@@ -149,4 +148,3 @@ The agent system is composed of several specialized ADK agents:
 ## Scratch Directory
 
 The `scratch/` directory contains various files related to earlier experiments, utility scripts (e.g., for visualizing RDF graphs directly with `pyvis`), sample data (text files, Turtle files), and simpler ADK agent examples. These files are not part of the main `graphcycle` agent's execution flow but serve as a log of development efforts and demonstrations of different ADK features.
-```
