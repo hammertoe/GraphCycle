@@ -221,10 +221,11 @@ graph_builder1 = LlmAgent(
     name="GraphBuilder1",
     model=LLM_MODEL1,
     generate_content_config=types.GenerateContentConfig(
-        temperature=0.2
+        temperature=0.5
     ),
     instruction=GENERATE_KG_PROMPT.format(knowledge_graph_key="knowledge_graph1"),
     tools=[store_knowledge_graph],
+    output_key="knowledge_graph1",
 )
 
 graph_reviewer1 = LlmAgent(
@@ -238,10 +239,11 @@ graph_builder2 = LlmAgent(
     name="GraphBuilder2",
     model=LLM_MODEL2,
     generate_content_config=types.GenerateContentConfig(
-        temperature=0.2
+        temperature=0.5
     ),
     instruction=GENERATE_KG_PROMPT.format(knowledge_graph_key="knowledge_graph2"),
     tools=[store_knowledge_graph],
+    output_key="knowledge_graph2",
 )
 
 graph_reviewer2 = LlmAgent(
